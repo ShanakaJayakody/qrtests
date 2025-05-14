@@ -52,6 +52,34 @@
             max-width: 150px; /* Adjust size as needed */
             margin: 0 auto 1.5rem auto; /* Center and add space below */
         }
+        /* Style for disabled links */
+        .drill-link-disabled {
+            display: block;
+            background-color: #f0f0f0; /* Light gray background */
+            color: #a0a0a0; /* Gray text */
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border: 1px solid #ddd;
+            cursor: not-allowed; /* Show not-allowed cursor */
+            pointer-events: none; /* Disable clicks */
+            position: relative;
+        }
+        .coming-soon-badge {
+            position: absolute;
+            top: 50%;
+            right: 1rem;
+            transform: translateY(-50%);
+            background-color: #e0e0e0;
+            color: #707070;
+            font-size: 0.7rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 1rem;
+            font-weight: normal;
+        }
     </style>
      <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -62,22 +90,22 @@
     <div class="dashboard-container">
          <img src="https://ik.imagekit.io/mwp/MWP%20Color%20no%20background.png?updatedAt=1745982959141" alt="MedwithPurpose Logo" class="logo" onerror="this.style.display='none'; this.onerror=null;">
 
-        <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6">Quantitative Reasoning Drills</h1>
+        <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6">Quantitative Reasoning Tests</h1>
 
         <div class="mb-6 text-left text-lg font-semibold text-gray-700">Welcome <span id="student-name-editable" contenteditable="true" class="font-normal text-gray-900 px-2 py-1 border border-dashed border-transparent hover:border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded focus:outline-none transition-colors duration-150">Your Name</span><svg id="edit-name-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 inline-block ml-1 text-gray-500 align-middle"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" /></svg></div>
 
         <div class="space-y-3">
             <a href="QR Test 1.html" class="drill-link">QR Test 1</a>
 
-            <a href="QR Test 2.html" class="drill-link">QR Test 2</a>
+            <div class="drill-link-disabled">QR Test 2<span class="coming-soon-badge">Coming Soon</span></div>
 
-            <a href="QR Test 3.html" class="drill-link">QR Test 3</a>
+            <div class="drill-link-disabled">QR Test 3<span class="coming-soon-badge">Coming Soon</span></div>
 
-            <a href="QR Test 4.html" class="drill-link">QR Test 4</a>
+            <div class="drill-link-disabled">QR Test 4<span class="coming-soon-badge">Coming Soon</span></div>
 
-            <a href="QR Test 5.html" class="drill-link">QR Test 5</a>
+            <div class="drill-link-disabled">QR Test 5<span class="coming-soon-badge">Coming Soon</span></div>
 
-            <a href="QR Test 6.html" class="drill-link">QR Test 6</a>
+            <div class="drill-link-disabled">QR Test 6<span class="coming-soon-badge">Coming Soon</span></div>
         </div>
 
     </div>
