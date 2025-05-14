@@ -276,6 +276,7 @@
             display: flex; 
             align-items: center; 
             justify-content: flex-end;
+            position: relative; /* Add position relative to properly position the memory indicator */
         }
         #calc-display {
             font-family: 'Courier New', Courier, monospace; 
@@ -285,6 +286,15 @@
             text-overflow: ellipsis; 
             white-space: nowrap; 
             max-width: 100%;
+        }
+        #calc-memory-indicator {
+            position: absolute;
+            left: 6px;
+            top: 4px;
+            color: #2D3748;
+            font-weight: bold;
+            font-size: 0.9rem;
+            display: none;
         }
         .calc-buttons-grid {
             display: grid;
@@ -436,7 +446,7 @@
             </div>
             <div class="calculator-decorative-text">TEXAS INSTRUMENTS TI-108</div>
             <div id="calc-display-container">
-                <span id="calc-memory-indicator" style="position: absolute; left: 6px; top: 4px; color: #2D3748; font-weight: bold; font-size: 1.1rem; display: none;">M</span>
+                <span id="calc-memory-indicator" style="position: absolute; left: 6px; top: 50%; transform: translateY(-50%); color: #2D3748; font-weight: bold; font-size: 0.9rem; display: none;">M</span>
                 <div id="calc-display">0</div>
             </div>
             <div class="calc-buttons-grid">
