@@ -1190,12 +1190,25 @@ For example: an event with Catering Beta for 15 guests requiring 2.5 hours of se
         
         // --- Calculator Functions ---
         function updateCalcDisplay() {
-            // Ensure display doesn't overflow, show 'Error' if too long (simple approach)
-            if (calcCurrentInput.length > 12 && calcCurrentInput !== 'Error') { // Max 12 digits before 'Error'
-                calcDisplay.textContent = 'Error'; // Or some other indicator
+            // Ensure display doesn't overflow, use scientific notation for very long numbers
+            if (calcCurrentInput === 'Error') {
+                calcDisplay.textContent = 'Error';
+            } else if (calcCurrentInput.length > 12) {
+                // For long numbers, try scientific notation
+                try {
+                    const num = parseFloat(calcCurrentInput);
+                    if (isFinite(num)) {
+                        calcDisplay.textContent = num.toExponential(6);
+                    } else {
+                        calcDisplay.textContent = 'Error';
+                    }
+                } catch (e) {
+                    calcDisplay.textContent = calcCurrentInput.substring(0, 12);
+                }
             } else {
-                 calcDisplay.textContent = calcCurrentInput;
+                calcDisplay.textContent = calcCurrentInput;
             }
+            
             // Show/hide memory indicator
             const memIndicator = document.getElementById('calc-memory-indicator');
             if (calcMemory !== 0) {
@@ -1285,13 +1298,35 @@ For example: an event with Catering Beta for 15 guests requiring 2.5 hours of se
             if (result === 'Error') {
                 calcCurrentInput = 'Error';
             } else {
-                // Format result: if it's a very small or large number, toExponential might be better
-                // For simplicity, using toPrecision and then parseFloat to remove trailing zeros
-                let resultStr = parseFloat(result.toPrecision(10)).toString(); // 10 significant figures
-                if (resultStr.includes('e')) { // Handle scientific notation if it occurs
-                    // Keep it simple, or implement more complex display logic
+                // Check if result is a valid number and not Infinity or NaN
+                if (!isFinite(result)) {
+                    calcCurrentInput = 'Error';
+                } else {
+                    // Format result: if it's a very small or large number, handle differently
+                    try {
+                        // Handle large numbers better - use toFixed for numbers that are too large
+                        if (Math.abs(result) > 1e10) {
+                            let resultStr = result.toExponential(6);
+                            calcCurrentInput = resultStr;
+                        } else if (Math.abs(result) < 1e-6 && result !== 0) {
+                            // Small numbers in scientific notation
+                            let resultStr = result.toExponential(6);
+                            calcCurrentInput = resultStr;
+                        } else {
+                            // Normal sized numbers - keep precision but remove trailing zeros
+                            let resultStr = parseFloat(result.toPrecision(10)).toString();
+                            calcCurrentInput = resultStr;
+                        }
+                    } catch (e) {
+                        // Fallback if formatting fails
+                        calcCurrentInput = String(result);
+                    }
+                    
+                    // Additional safety - if we end up with an invalid display value, show Error
+                    if (calcCurrentInput === 'NaN' || calcCurrentInput === 'Infinity' || calcCurrentInput === '-Infinity') {
+                        calcCurrentInput = 'Error';
+                    }
                 }
-                calcCurrentInput = resultStr;
             }
             calcOperator = null;
             calcShouldResetDisplay = true; 
@@ -1340,7 +1375,16 @@ For example: an event with Catering Beta for 15 guests requiring 2.5 hours of se
                     if (currentValue < 0 || isNaN(currentValue)) {
                         calcCurrentInput = 'Error';
                     } else {
-                        calcCurrentInput = String(parseFloat(Math.sqrt(currentValue).toPrecision(10)));
+                        try {
+                            const sqrtResult = Math.sqrt(currentValue);
+                            if (!isFinite(sqrtResult)) {
+                                calcCurrentInput = 'Error';
+                            } else {
+                                calcCurrentInput = String(parseFloat(sqrtResult.toPrecision(10)));
+                            }
+                        } catch (e) {
+                            calcCurrentInput = 'Error';
+                        }
                     }
                     break;
                 case 'percent':
@@ -1348,9 +1392,28 @@ For example: an event with Catering Beta for 15 guests requiring 2.5 hours of se
                     if (calcPreviousInput !== '' && calcOperator) {
                         const prev = parseFloat(calcPreviousInput);
                         if (isNaN(prev)) { calcCurrentInput = 'Error'; break; }
-                        calcCurrentInput = String(parseFloat((prev * (currentValue / 100)).toPrecision(10)));
+                        
+                        try {
+                            const percentResult = prev * (currentValue / 100);
+                            if (!isFinite(percentResult)) {
+                                calcCurrentInput = 'Error';
+                            } else {
+                                calcCurrentInput = String(parseFloat(percentResult.toPrecision(10)));
+                            }
+                        } catch (e) {
+                            calcCurrentInput = 'Error';
+                        }
                     } else { 
-                        calcCurrentInput = String(parseFloat((currentValue / 100).toPrecision(10)));
+                        try {
+                            const percentResult = currentValue / 100;
+                            if (!isFinite(percentResult)) {
+                                calcCurrentInput = 'Error';
+                            } else {
+                                calcCurrentInput = String(parseFloat(percentResult.toPrecision(10)));
+                            }
+                        } catch (e) {
+                            calcCurrentInput = 'Error';
+                        }
                     }
                     break;
                 case 'negate':
@@ -1368,9 +1431,12 @@ For example: an event with Catering Beta for 15 guests requiring 2.5 hours of se
                         calcCurrentInput = '0';
                     }
                     break;
+                case 'clear':
+                    clearCalculator();
+                    return; // Skip further processing
             }
             updateCalcDisplay();
-            if (func !== 'backspace' && func !== 'negate') { 
+            if (func !== 'backspace' && func !== 'negate' && func !== 'clear') { 
                 calcShouldResetDisplay = true;
             }
             calcMrcPressedOnce = false;
