@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - QR Drills</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for body background and font */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8; /* Light blue-gray background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 1rem; /* Add some padding around the content */
+        }
+        /* Optional: Add a subtle shadow and rounded corners to the main container */
+        .dashboard-container {
+            background-color: #ffffff;
+            border-radius: 0.75rem; /* More rounded corners */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            padding: 2rem; /* Increased padding */
+            width: 100%;
+            max-width: 800px; /* Increased max-width for new sections */
+            text-align: center; /* Center align content */
+        }
+        /* Style for the drill links */
+        .drill-link {
+            display: block; /* Make links block for better click area */
+            background-color: #e2f0ff; /* Light blue background for links */
+            color: #0056b3; /* Darker blue text color */
+            padding: 1rem; /* Padding inside links */
+            margin-bottom: 0.75rem; /* Space between links */
+            border-radius: 0.5rem; /* Rounded corners for links */
+            text-decoration: none; /* Remove underline */
+            font-size: 1.1rem; /* Slightly larger font size */
+            font-weight: 600; /* Semi-bold font */
+            transition: background-color 0.2s ease, transform 0.1s ease; /* Smooth hover effect */
+            border: 1px solid #b3d4ff; /* Subtle border */
+        }
+        .drill-link:hover {
+            background-color: #cce0ff; /* Lighter blue on hover */
+            transform: translateY(-2px); /* Slight lift effect */
+        }
+         .drill-link:active {
+            transform: translateY(0); /* Press down effect */
+        }
+        /* Add a logo or image */
+        .logo {
+            max-width: 150px; /* Adjust size as needed */
+            margin: 0 auto 1.5rem auto; /* Center and add space below */
+        }
+    </style>
+     <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="dashboard-container">
+         <img src="https://ik.imagekit.io/mwp/MWP%20Color%20no%20background.png?updatedAt=1745982959141" alt="MedwithPurpose Logo" class="logo" onerror="this.style.display='none'; this.onerror=null;">
+
+        <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6">Quantitative Reasoning Drills</h1>
+
+        <div class="mb-6 text-left text-lg font-semibold text-gray-700">Welcome <span id="student-name-editable" contenteditable="true" class="font-normal text-gray-900 px-2 py-1 border border-dashed border-transparent hover:border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded focus:outline-none transition-colors duration-150">Your Name</span><svg id="edit-name-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 inline-block ml-1 text-gray-500 align-middle"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" /></svg></div>
+
+        <div class="space-y-3">
+            <a href="QR Test 1.html" class="drill-link">QR Test 1</a>
+
+            <a href="QR Test 2.html" class="drill-link">QR Test 2</a>
+
+            <a href="QR Test 3.html" class="drill-link">QR Test 3</a>
+
+            <a href="QR Test 4.html" class="drill-link">QR Test 4</a>
+
+            <a href="QR Test 5.html" class="drill-link">QR Test 5</a>
+
+            <a href="QR Test 6.html" class="drill-link">QR Test 6</a>
+        </div>
+
+    </div>
+
+    <script>
+        const nameSpan = document.getElementById('student-name-editable');
+        const editIcon = document.getElementById('edit-name-icon'); // Get the icon
+        const localStorageKey = 'qrStudentName';
+        const defaultName = 'Your Name';
+        const smallIconClasses = ['w-3', 'h-3'];
+        const normalIconClasses = ['w-4', 'h-4'];
+
+        function setIconSize(isSmall) {
+            if (isSmall) {
+                editIcon.classList.remove(...normalIconClasses);
+                editIcon.classList.add(...smallIconClasses);
+            } else {
+                editIcon.classList.remove(...smallIconClasses);
+                editIcon.classList.add(...normalIconClasses);
+            }
+        }
+
+        // Load name from local storage on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedName = localStorage.getItem(localStorageKey);
+            if (savedName && savedName.trim() !== '' && savedName.trim() !== defaultName) {
+                nameSpan.textContent = savedName;
+                setIconSize(true); // Make icon small if name is not default
+            } else {
+                nameSpan.textContent = defaultName; // Default if nothing saved or empty or exactly 'Your Name'
+                setIconSize(false); // Ensure icon is normal size
+                if (savedName === defaultName) localStorage.removeItem(localStorageKey); // Clear storage if it holds the default
+            }
+        });
+
+        // Save name to local storage when the span loses focus
+        nameSpan.addEventListener('blur', () => {
+            const currentName = nameSpan.textContent.trim();
+            if (currentName !== '' && currentName !== defaultName) {
+                localStorage.setItem(localStorageKey, currentName);
+                setIconSize(true); // Make icon small
+            } else {
+                // Handle case where user clears the name or enters the default
+                localStorage.removeItem(localStorageKey);
+                nameSpan.textContent = defaultName;
+                setIconSize(false); // Make icon normal size
+            }
+        });
+
+        // Optional: Prevent line breaks if user presses Enter
+        nameSpan.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault(); // Prevent adding a new line
+                nameSpan.blur(); // Trigger the blur event to save
+            }
+        });
+    </script>
+
+</body>
+</html>
