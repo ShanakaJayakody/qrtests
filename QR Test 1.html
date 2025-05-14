@@ -993,6 +993,12 @@ For example: an event with Catering Beta for 15 guests requiring 2.5 hours of se
             resultsScreen.classList.add('hidden');
             setupScreen.classList.add('hidden');
             appContainer.classList.add('flex', 'flex-col');
+            
+            // Hide calculator if it's visible
+            if (calculatorUI.classList.contains('visible')) {
+                toggleCalculator();
+            }
+            
             reviewGrid.innerHTML = '';
             questions.forEach((_, index) => {
                  if (filterFlagged && !flaggedQuestions[index]) {
@@ -1016,29 +1022,29 @@ For example: an event with Catering Beta for 15 guests requiring 2.5 hours of se
              filterFlaggedButton.textContent = filterFlagged ? 'Show All Questions' : 'Show Flagged Only';
         }
 
-         function populateNavigator() {
-             navigatorGrid.innerHTML = '';
-             questions.forEach((_, index) => {
-                 const button = document.createElement('button');
-                 button.textContent = index + 1;
-                 button.classList.add('py-2', 'px-1', 'border', 'border-gray-300', 'rounded-md', 'text-center', 'transition', 'duration-150', 'ease-in-out', 'text-sm', 'hover:bg-gray-100');
-                 button.dataset.questionIndex = index;
-                 if (userAnswers[index]) button.classList.add('nav-answered');
-                 if (index === currentQuestionIndex) button.classList.add('nav-current');
-                 if (flaggedQuestions[index]) button.classList.add('nav-flagged');
-                 button.onclick = () => {
-                     navigatorModal.classList.remove('flex');
-                     navigatorModal.classList.add('hidden');
-                     // Hide calculator if it's open
-                     if (calculatorUI.classList.contains('visible')) {
-                         toggleCalculator();
-                     }
-                     const targetIndex = parseInt(button.dataset.questionIndex, 10);
-                     loadQuestion(targetIndex, isReviewingFromResults);
-                 };
-                 navigatorGrid.appendChild(button);
-             });
-         }
+        function populateNavigator() {
+            navigatorGrid.innerHTML = '';
+            questions.forEach((_, index) => {
+                const button = document.createElement('button');
+                button.textContent = index + 1;
+                button.classList.add('py-2', 'px-1', 'border', 'border-gray-300', 'rounded-md', 'text-center', 'transition', 'duration-150', 'ease-in-out', 'text-sm', 'hover:bg-gray-100');
+                button.dataset.questionIndex = index;
+                if (userAnswers[index]) button.classList.add('nav-answered');
+                if (index === currentQuestionIndex) button.classList.add('nav-current');
+                if (flaggedQuestions[index]) button.classList.add('nav-flagged');
+                button.onclick = () => {
+                    navigatorModal.classList.remove('flex');
+                    navigatorModal.classList.add('hidden');
+                    // Hide calculator if it's open
+                    if (calculatorUI.classList.contains('visible')) {
+                        toggleCalculator();
+                    }
+                    const targetIndex = parseInt(button.dataset.questionIndex, 10);
+                    loadQuestion(targetIndex, isReviewingFromResults);
+                };
+                navigatorGrid.appendChild(button);
+            });
+        }
 
         function updateNavigatorButtons() {
             if (!navigatorGrid) return;
@@ -1649,6 +1655,27 @@ For example: an event with Catering Beta for 15 guests requiring 2.5 hours of se
                     }
                     loadQuestion(index);
                     updateTimerVisibility();
+                }
+            }
+        });
+
+        // Add keyboard event listeners for Enter key on the appropriate pages
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter' && !event.ctrlKey && !event.shiftKey && !event.altKey && !event.metaKey) {
+                const isInputOrTextareaFocused = document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA';
+                
+                // Only handle Enter key if no input or textarea is focused
+                if (!isInputOrTextareaFocused) {
+                    // Check which screen is active
+                    if (!setupScreen.classList.contains('hidden')) {
+                        // Begin test button on setup screen
+                        startButton.click();
+                        event.preventDefault();
+                    } else if (!reviewScreen.classList.contains('hidden')) {
+                        // End practice session button on review screen
+                        endPracticeSessionButton.click();
+                        event.preventDefault();
+                    }
                 }
             }
         });
