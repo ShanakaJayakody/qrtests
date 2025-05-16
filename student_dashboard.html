@@ -3,315 +3,751 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Dashboard - MedwithPurpose</title>
+    <title>Student Dashboard - QR Drills</title>
     <link rel="icon" href="https://ik.imagekit.io/mwp/2.svg?updatedAt=1745982956185" type="image/svg+xml">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        :root {
+            --color-primary: #3b82f6;
+            --color-primary-dark: #2563eb;
+            --color-primary-light: #93c5fd;
+            --color-primary-bg: #eff6ff;
+            --color-success: #10b981;
+            --color-warning: #f59e0b;
+            --color-danger: #ef4444;
+            --color-text: #1f2937;
+            --color-text-secondary: #4b5563;
+            --color-text-tertiary: #6b7280;
+            --color-bg: #f9fafb;
+            --color-bg-secondary: #f3f4f6;
+            --color-border: #e5e7eb;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --radius-sm: 0.375rem;
+            --radius: 0.5rem;
+            --radius-md: 0.75rem;
+            --radius-lg: 1rem;
+            --transition: 220ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f0f4f8; /* Light grey-blue background */
+            background-color: var(--color-bg);
             display: flex;
             justify-content: center;
             align-items: flex-start;
             min-height: 100vh;
-            padding: 1rem;
-            color: #1f2937; /* Default text color */
+            padding: 0;
+            color: var(--color-text);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
+
+        /* Auth Container Styles */
         .auth-container {
             background-color: #ffffff;
-            border-radius: 0.75rem; /* 12px */
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            padding: 2.5rem; /* 40px */
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            padding: 2.5rem;
             width: 100%;
-            max-width: 450px; /* Slightly narrower for auth forms */
+            max-width: 480px;
             text-align: center;
-            margin-top: 3rem; /* 48px */
+            margin: 2.5rem auto;
+            animation: fadeIn 0.3s ease-out;
         }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         .dashboard-wrapper {
             background-color: #ffffff;
-            border-radius: 0.75rem;
-            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
             width: 100%;
-            max-width: 960px; /* Accommodate wider dashboard content */
-            margin-top: 1rem;
-            min-height: 80vh; /* Ensure it takes up good portion of screen */
+            margin: 0;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
+            overflow-x: hidden;
         }
-        .logo-auth {
-            max-width: 150px;
-            margin: 0 auto 2rem auto; /* More space below logo */
+
+        .logo {
+            max-width: 140px;
+            margin: 0 auto 1.75rem auto;
+            transition: all var(--transition);
         }
+
+        .logo:hover {
+            transform: scale(1.05);
+        }
+
+        /* Dashboard Header */
         .dashboard-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 1rem 1.5rem; /* Consistent padding */
-            border-bottom: 1px solid #e5e7eb; /* Tailwind gray-200 */
-        }
-        .dashboard-header .logo-dashboard {
-            max-width: 130px;
-            height: auto;
-        }
-        .main-nav-container {
-            background-color: #f9fafb; /* Tailwind gray-50 */
-            padding: 0.5rem 1rem;
-            border-bottom: 1px solid #e5e7eb;
-        }
-        .main-nav {
-            display: flex;
-            justify-content: center; /* Center tabs */
-            align-items: center;
-            list-style: none;
-            margin: 0;
-            padding: 0;
-        }
-        .nav-tab > button, .nav-tab > div { /* Target button or div inside nav-tab for styling */
-            padding: 0.875rem 1.75rem; /* 14px 28px */
-            margin: 0 0.25rem; /* 4px */
-            cursor: pointer;
-            font-weight: 500;
-            color: #4b5563; /* Tailwind gray-600 */
-            border-bottom: 3px solid transparent;
-            transition: color 0.2s ease, border-color 0.2s ease;
-            border-radius: 0.375rem 0.375rem 0 0; /* Slight rounding on top */
-            display: inline-flex; /* For icon alignment if any */
-            align-items: center;
-        }
-        .nav-tab > button:hover, .nav-tab > div:hover,
-        .nav-tab > button.active, .nav-tab > div.active {
-            color: #2563eb; /* Tailwind blue-600 */
-            border-bottom-color: #2563eb;
-        }
-        .nav-tab > button:focus-visible, .nav-tab > div:focus-visible {
-            outline: 2px solid #3b82f6; /* Tailwind blue-500 */
-            outline-offset: 2px;
-        }
-        .nav-tab-disabled > button, .nav-tab-disabled > div {
-             color: #9ca3af; /* Tailwind gray-400 */
-             cursor: not-allowed;
-        }
-        .nav-tab-disabled > button:hover, .nav-tab-disabled > div:hover {
-            color: #9ca3af;
-            border-bottom-color: transparent;
-        }
-        .coming-soon-inline {
-            font-size: 0.65rem; /* Smaller */
-            color: #6b7280; /* Tailwind gray-500 */
-            margin-left: 6px;
-            font-weight: 400;
-            background-color: #e5e7eb;
-            padding: 0.1rem 0.3rem;
-            border-radius: 0.25rem;
+            padding: 1rem 1.5rem;
+            background-color: #ffffff;
+            border-bottom: 1px solid var(--color-border);
+            box-shadow: var(--shadow-sm);
+            position: sticky;
+            top: 0;
+            z-index: 40;
         }
 
+        .dashboard-header .logo-small {
+            max-width: 120px;
+            transition: all var(--transition);
+        }
+
+        .dashboard-header .logo-small:hover {
+            transform: scale(1.03);
+        }
+
+        /* Main Navigation */
+        .main-nav {
+            display: flex;
+            justify-content: center;
+            background-color: #ffffff;
+            padding: 0.25rem 0;
+            border-bottom: 1px solid var(--color-border);
+            box-shadow: var(--shadow-sm);
+            position: sticky;
+            top: 61px; /* Height of header */
+            z-index: 30;
+        }
+
+        .nav-tab {
+            padding: 0.875rem 1.5rem;
+            margin: 0 0.5rem;
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--color-text-secondary);
+            border-bottom: 2px solid transparent;
+            transition: all var(--transition);
+            border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+            position: relative;
+            user-select: none;
+        }
+
+        .nav-tab:hover {
+            color: var(--color-primary);
+            background-color: var(--color-primary-bg);
+        }
+
+        .nav-tab.active {
+            color: var(--color-primary);
+            border-bottom-color: var(--color-primary);
+            background-color: var(--color-primary-bg);
+        }
+
+        .nav-tab-disabled {
+            color: var(--color-text-tertiary);
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .nav-tab-disabled .coming-soon-inline {
+            font-size: 0.65rem;
+            color: var(--color-text-tertiary);
+            margin-left: 4px;
+            background-color: var(--color-bg-secondary);
+            padding: 0.1rem 0.4rem;
+            border-radius: 1rem;
+            transition: all var(--transition);
+        }
+
+        /* Dropdown for Tests Tab */
         .tests-dropdown-container {
             position: relative;
         }
+
         .tests-dropdown-content {
-            display: none; /* Controlled by JS */
+            opacity: 0;
+            visibility: hidden;
             position: absolute;
             background-color: #ffffff;
-            min-width: 200px; /* Wider dropdown */
-            box-shadow: 0px 8px 24px 0px rgba(0,0,0,0.12); /* Softer, larger shadow */
-            z-index: 50; /* Ensure it's above content */
-            border-radius: 0.5rem; /* 8px */
+            min-width: 200px;
+            box-shadow: var(--shadow-md);
+            z-index: 50;
+            border-radius: var(--radius);
             margin-top: 0.25rem;
-            border: 1px solid #e5e7eb;
-            overflow: hidden; /* For rounded corners on items */
+            border: 1px solid var(--color-border);
+            transform: translateY(-10px);
+            transition: all var(--transition);
+            overflow: hidden;
         }
+
+        .tests-dropdown-container:hover .tests-dropdown-content {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
         .dropdown-item {
-            color: #374151; /* Tailwind gray-700 */
-            padding: 0.875rem 1.25rem; /* 14px 20px */
+            color: var(--color-text-secondary);
+            padding: 0.75rem 1rem;
             text-decoration: none;
             display: block;
-            font-size: 0.95rem; /* Slightly larger */
-            transition: background-color 0.15s ease, color 0.15s ease;
+            font-size: 0.9rem;
+            border-bottom: 1px solid var(--color-border);
+            transition: all var(--transition);
         }
-        .dropdown-item:not(.disabled):hover,
-        .dropdown-item:not(.disabled):focus-visible {
-            background-color: #eff6ff; /* Tailwind blue-50 */
-            color: #1d4ed8; /* Tailwind blue-700 */
-            outline: none;
+
+        .dropdown-item:last-child {
+            border-bottom: none;
         }
+
+        .dropdown-item:hover:not(.disabled) {
+            background-color: var(--color-primary-bg);
+            color: var(--color-primary-dark);
+            padding-left: 1.25rem;
+        }
+
         .dropdown-item.disabled {
-            color: #9ca3af;
+            color: var(--color-text-tertiary);
             cursor: not-allowed;
-            background-color: #f9fafb;
+            background-color: var(--color-bg-secondary);
+            opacity: 0.7;
         }
-        .dropdown-item.disabled .coming-soon-inline { font-size: 0.6rem; }
 
+        .dropdown-item.disabled .coming-soon-inline {
+            font-size: 0.65rem;
+            color: var(--color-text-tertiary);
+            margin-left: 4px;
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 0.1rem 0.4rem;
+            border-radius: 1rem;
+        }
+
+        /* Dashboard Content Area */
         .dashboard-content-area {
-            padding: 2rem 2.5rem; /* 32px 40px */
+            padding: 2.5rem;
             text-align: center;
-            flex-grow: 1; /* Allow content area to fill space */
-            display: flex;
-            flex-direction: column;
-            justify-content: center; /* Center content vertically if not much */
+            flex-grow: 1;
+            background-color: var(--color-bg);
+            overflow-y: auto;
         }
-        .dashboard-content-area h1 { margin-bottom: 1.5rem; } /* More space for main titles */
-        .dashboard-content-area h2 { margin-bottom: 1rem; }
 
+        /* Test Links Styling */
         .drill-link {
-            display: block; background-color: #eff6ff; color: #1e40af; padding: 1.125rem; /* 18px */
-            margin-bottom: 1rem; border-radius: 0.5rem; text-decoration: none; font-size: 1.1rem;
-            font-weight: 500; transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
-            border: 1px solid #bfdbfe; /* Lighter blue border */
-            box-shadow: 0 1px 2px 0 rgba(0,0,0,0.03);
+            display: block;
+            background-color: var(--color-primary-bg);
+            color: var(--color-primary-dark);
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            border-radius: var(--radius);
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all var(--transition);
+            border: 1px solid var(--color-primary-light);
+            box-shadow: var(--shadow-sm);
+            position: relative;
+            overflow: hidden;
         }
-        .drill-link:hover { background-color: #dbeafe; transform: translateY(-2px); box-shadow: 0 4px 8px -1px rgba(0,0,0,0.07); }
+
+        .drill-link::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(120deg, rgba(255,255,255,0) 30%, rgba(255,255,255,0.8), rgba(255,255,255,0) 70%);
+            transform: translateX(-100%);
+            transition: all 0.6s ease;
+        }
+
+        .drill-link:hover {
+            background-color: var(--color-primary-light);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .drill-link:hover::before {
+            transform: translateX(100%);
+        }
+
+        .drill-link:active {
+            transform: translateY(-1px);
+        }
+
         .drill-link-disabled {
-            display: block; background-color: #f3f4f6; color: #9ca3af; padding: 1.125rem;
-            margin-bottom: 1rem; border-radius: 0.5rem; text-decoration: none; font-size: 1.1rem;
-            font-weight: 500; border: 1px solid #e5e7eb; cursor: not-allowed; position: relative;
-        }
-        .drill-link-disabled .coming-soon-badge { /* Adjusted to match inline style */
-            background-color: #d1d5db; color: #4b5563; font-size: 0.65rem;
-            padding: 0.2rem 0.4rem; border-radius: 0.25rem;
-            position: absolute; top: 0.75rem; right: 0.75rem; transform: none;
+            display: block;
+            background-color: var(--color-bg-secondary);
+            color: var(--color-text-tertiary);
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            border-radius: var(--radius);
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border: 1px solid var(--color-border);
+            cursor: not-allowed;
+            pointer-events: none;
+            position: relative;
+            box-shadow: var(--shadow-sm);
+            opacity: 0.8;
         }
 
-        /* Auth Form Inputs & Buttons */
-        input[type="email"].auth-input, input[type="password"].auth-input, input[type="text"].auth-input {
-            width: 100%; padding: 0.875rem 1rem; margin-bottom: 1.25rem;
-            border: 1px solid #d1d5db; border-radius: 0.375rem; box-sizing: border-box;
-            font-size: 1rem; transition: border-color 0.2s, box-shadow 0.2s;
+        .coming-soon-badge {
+            position: absolute;
+            top: 50%;
+            right: 1rem;
+            transform: translateY(-50%);
+            background-color: rgba(255, 255, 255, 0.7);
+            color: var(--color-text-tertiary);
+            font-size: 0.7rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-weight: normal;
+            box-shadow: var(--shadow-sm);
         }
-        input[type="email"].auth-input:focus, input[type="password"].auth-input:focus, input[type="text"].auth-input:focus {
-            outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+
+        /* Auth Form Styles */
+        input[type="email"], input[type="password"], input[type="text"].auth-input {
+            width: 100%;
+            padding: 1rem;
+            margin-bottom: 1.25rem;
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius);
+            box-sizing: border-box;
+            font-size: 1rem;
+            transition: all var(--transition);
+            background-color: var(--color-bg-secondary);
         }
+
+        input[type="email"]:focus, input[type="password"]:focus, input[type="text"].auth-input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+            background-color: #ffffff;
+        }
+
         .btn {
-            display: inline-flex; align-items: center; justify-content: center; width: 100%;
-            padding: 0.75rem 1.5rem; border: 1px solid transparent; border-radius: 0.375rem;
-            cursor: pointer; font-weight: 600; font-size: 0.95rem;
-            transition: background-color 0.2s, box-shadow 0.2s, border-color 0.2s;
-            text-align: center; box-shadow: 0 1px 3px 0 rgba(0,0,0,0.07), 0 1px 2px 0 rgba(0,0,0,0.04);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 0.875rem 1.5rem;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all var(--transition);
+            text-align: center;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
         }
-        .btn:hover { box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06); }
-        .btn:focus-visible { outline: 2px solid #3b82f6; outline-offset: 2px; }
 
-        .btn-primary { background-color: #2563eb; color: white; }
-        .btn-primary:hover { background-color: #1d4ed8; }
-        .btn-google { background-color: #ffffff; color: #374151; border-color: #d1d5db; }
-        .btn-google:hover { background-color: #f9fafb; border-color: #adb5bd;}
-        .btn-google img { width: 20px; height: 20px; margin-right: 0.75rem; }
+        .btn::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(120deg, rgba(255,255,255,0) 30%, rgba(255,255,255,0.1), rgba(255,255,255,0) 70%);
+            transform: translateX(-100%);
+            transition: all 0.6s ease;
+        }
+
+        .btn:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-1px);
+        }
+
+        .btn:hover::after {
+            transform: translateX(100%);
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-primary {
+            background-color: var(--color-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--color-primary-dark);
+        }
+
+        .btn-google {
+            background-color: #ffffff;
+            color: var(--color-text);
+            border: 1px solid var(--color-border);
+        }
+
+        .btn-google:hover {
+            background-color: var(--color-bg-secondary);
+        }
+
+        .btn-google img {
+            width: 20px;
+            height: 20px;
+            margin-right: 0.75rem;
+        }
+
         .btn-logout {
-            background-color: #fee2e2; color: #b91c1c; padding: 0.5rem 1rem; font-size: 0.875rem; font-weight: 500;
-            border: 1px solid #fecaca;
-        }
-        .btn-logout:hover { background-color: #fecaca; color: #991b1b; }
-        .auth-toggle-link { color: #2563eb; cursor: pointer; text-decoration: underline; font-size: 0.875rem; }
-        .auth-toggle-link:hover { color: #1d4ed8; }
-        .error-message { color: #ef4444; font-size: 0.875rem; min-height: 1.25rem; margin-top: 0.75rem; }
-        .hidden { display: none !important; }
-        .welcome-user { font-size: 0.95rem; color: #4b5563;}
-
-        /* Utility for focus rings matching Tailwind's blue */
-        .focus-ring-blue:focus-visible {
-            outline: 2px solid #2563eb;
-            outline-offset: 2px;
+            background-color: var(--color-danger);
+            color: white;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            border-radius: var(--radius);
+            transition: all var(--transition);
+            border: none;
+            cursor: pointer;
         }
 
+        .btn-logout:hover {
+            background-color: #dc2626;
+            box-shadow: var(--shadow);
+        }
+
+        .auth-toggle-link {
+            color: var(--color-primary);
+            cursor: pointer;
+            text-decoration: underline;
+            font-size: 0.875rem;
+            transition: all var(--transition);
+        }
+
+        .auth-toggle-link:hover {
+            color: var(--color-primary-dark);
+            text-decoration-thickness: 2px;
+        }
+
+        .error-message {
+            color: var(--color-danger);
+            font-size: 0.875rem;
+            min-height: 1.25rem;
+            margin-top: 0.5rem;
+            transition: all var(--transition);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .welcome-user {
+            font-size: 0.9rem;
+            color: var(--color-text-secondary);
+            display: flex;
+            align-items: center;
+        }
+
+        .welcome-user::before {
+            content: "";
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background-color: var(--color-success);
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        /* Message Containers */
+        .default-message, .coming-soon-message {
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: #ffffff;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+
+        /* Divider with text */
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 1rem 0;
+            color: var(--color-text-tertiary);
+            font-size: 0.875rem;
+        }
+
+        .divider::before, .divider::after {
+            content: "";
+            flex: 1;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .divider::before {
+            margin-right: 0.5rem;
+        }
+
+        .divider::after {
+            margin-left: 0.5rem;
+        }
+
+        /* Loading spinner */
+        .spinner {
+            border: 3px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 3px solid var(--color-primary);
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .dashboard-content-area {
+                padding: 1.5rem 1rem;
+            }
+            
+            .nav-tab {
+                padding: 0.75rem 1rem;
+                margin: 0 0.25rem;
+                font-size: 0.9rem;
+            }
+
+            .main-nav {
+                overflow-x: auto;
+                justify-content: flex-start;
+                padding: 0.25rem 0.5rem;
+            }
+
+            .coming-soon-badge {
+                font-size: 0.65rem;
+                padding: 0.2rem 0.5rem;
+            }
+            
+            .dropdown-item {
+                padding: 0.75rem 0.75rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .auth-container {
+                padding: 1.5rem;
+                margin: 1rem;
+            }
+            
+            .dashboard-header {
+                padding: 0.75rem 1rem;
+            }
+            
+            .logo-small {
+                max-width: 100px;
+            }
+
+            .welcome-user {
+                font-size: 0.8rem;
+            }
+
+            .btn-logout {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.75rem;
+            }
+        }
     </style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    <script defer src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script defer src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 </head>
 <body>
-
+    <!-- Auth Screen -->
     <div id="auth-section" class="auth-container">
-        <img src="https://ik.imagekit.io/mwp/MWP%20Color%20no%20background.png?updatedAt=1745982959141" alt="MedwithPurpose Logo" class="logo-auth" onerror="this.style.display='none'; this.onerror=null;">
+        <img src="https://ik.imagekit.io/mwp/MWP%20Color%20no%20background.png?updatedAt=1745982959141" alt="MedwithPurpose Logo" class="logo" onerror="this.style.display='none'; this.onerror=null;">
         
+        <!-- Login Form -->
         <div id="login-form">
-            <h2 class="text-2xl font-bold text-center mb-8 text-gray-800">Student Login</h2>
-            <input type="email" id="login-email" placeholder="Email Address" class="auth-input">
-            <input type="password" id="login-password" placeholder="Password" class="auth-input">
-            <button id="login-button" class="btn btn-primary mb-4">Login</button>
-            <div class="text-center my-4 text-sm text-gray-500">OR</div>
+            <h2 class="text-2xl font-bold text-center mb-6 text-gray-800">Welcome Back</h2>
+            <p class="text-gray-500 mb-6">Log in to access your personalized UCAT practice materials</p>
+            
+            <div class="mb-4 relative">
+                <input type="email" id="login-email" placeholder="Email Address" class="auth-input" aria-label="Email Address">
+                <span class="absolute inset-y-0 left-3 flex items-center text-gray-400" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                </span>
+            </div>
+            
+            <div class="mb-6 relative">
+                <input type="password" id="login-password" placeholder="Password" class="auth-input" aria-label="Password">
+                <span class="absolute inset-y-0 left-3 flex items-center text-gray-400" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                </span>
+            </div>
+            
+            <button id="login-button" class="btn btn-primary mb-4">
+                <span id="login-spinner" class="spinner hidden"></span>
+                <span>Login</span>
+            </button>
+            
+            <div class="divider mb-4"><span>OR</span></div>
+            
             <button id="google-login-button" class="btn btn-google mb-6">
                 <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google icon">
-                Sign in with Google
+                <span>Sign in with Google</span>
             </button>
-            <p class="text-sm text-gray-600">Don't have an account? <a href="#" id="show-signup-link" class="auth-toggle-link">Sign Up</a></p>
-            <p id="login-error" class="error-message text-center mt-4"></p>
+            
+            <p class="text-sm text-gray-600">Don't have an account? <a href="#" id="show-signup-link" class="auth-toggle-link">Create Account</a></p>
+            <p id="login-error" class="error-message text-center mt-3" aria-live="polite"></p>
         </div>
 
+        <!-- Signup Form -->
         <div id="signup-form" class="hidden">
-            <h2 class="text-2xl font-bold text-center mb-8 text-gray-800">Create Student Account</h2>
-            <input type="text" id="signup-name" placeholder="Full Name" class="auth-input">
-            <input type="email" id="signup-email" placeholder="Email Address" class="auth-input">
-            <input type="password" id="signup-password" placeholder="Password (min. 6 characters)" class="auth-input">
-            <button id="signup-button" class="btn btn-primary mb-4">Sign Up</button>
-            <div class="text-center my-4 text-sm text-gray-500">OR</div>
+            <h2 class="text-2xl font-bold text-center mb-6 text-gray-800">Create Account</h2>
+            <p class="text-gray-500 mb-6">Join thousands of students preparing for the UCAT</p>
+            
+            <div class="mb-4 relative">
+                <input type="text" id="signup-name" placeholder="Full Name" class="auth-input" aria-label="Full Name">
+                <span class="absolute inset-y-0 left-3 flex items-center text-gray-400" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                </span>
+            </div>
+            
+            <div class="mb-4 relative">
+                <input type="email" id="signup-email" placeholder="Email Address" class="auth-input" aria-label="Email Address">
+                <span class="absolute inset-y-0 left-3 flex items-center text-gray-400" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                </span>
+            </div>
+            
+            <div class="mb-6 relative">
+                <input type="password" id="signup-password" placeholder="Password (min. 6 characters)" class="auth-input" aria-label="Password">
+                <span class="absolute inset-y-0 left-3 flex items-center text-gray-400" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                </span>
+            </div>
+            
+            <button id="signup-button" class="btn btn-primary mb-4">
+                <span id="signup-spinner" class="spinner hidden"></span>
+                <span>Create Account</span>
+            </button>
+            
+            <div class="divider mb-4"><span>OR</span></div>
+            
             <button id="google-signup-button" class="btn btn-google mb-6">
                 <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google icon">
-                Sign up with Google
+                <span>Sign up with Google</span>
             </button>
+            
             <p class="text-sm text-gray-600">Already have an account? <a href="#" id="show-login-link" class="auth-toggle-link">Login</a></p>
-            <p id="signup-error" class="error-message text-center mt-4"></p>
+            <p id="signup-error" class="error-message text-center mt-3" aria-live="polite"></p>
         </div>
     </div>
 
+    <!-- Dashboard -->
     <div id="dashboard-wrapper" class="dashboard-wrapper hidden">
-        <header class="dashboard-header">
-            <img src="https://ik.imagekit.io/mwp/MWP%20Color%20no%20background.png?updatedAt=1745982959141" alt="MedwithPurpose Logo" class="logo-dashboard" onerror="this.style.display='none'; this.onerror=null;">
+        <!-- Header -->
+        <div class="dashboard-header">
+            <img src="https://ik.imagekit.io/mwp/MWP%20Color%20no%20background.png?updatedAt=1745982959141" alt="MedwithPurpose Logo" class="logo-small" onerror="this.style.display='none'; this.onerror=null;">
             <div class="flex items-center">
-                 <span class="welcome-user mr-4">Welcome, <span id="student-display-name" class="font-semibold">Student</span>!</span>
-                 <button id="logout-button" class="btn-logout focus-ring-blue">Logout</button>
+                <span class="welcome-user mr-4">Welcome, <span id="student-display-name" class="font-semibold">Student</span></span>
+                <button id="logout-button" class="btn-logout" aria-label="Logout">
+                    <span>Logout</span>
+                </button>
             </div>
-        </header>
-
-        <div class="main-nav-container">
-            <ul class="main-nav" role="tablist" aria-label="Main dashboard navigation">
-                <li class="nav-tab nav-tab-disabled" role="presentation">
-                    <button id="nav-practice" role="tab" aria-selected="false" aria-controls="coming-soon-panel" disabled>Practice <span class="coming-soon-inline">Soon</span></button>
-                </li>
-                <li class="nav-tab tests-dropdown-container" role="presentation">
-                    <button id="nav-tests" role="tab" aria-selected="false" aria-controls="tests-panel" aria-haspopup="true" aria-expanded="false">Tests <span class="text-xs ml-1">&#9662;</span></button>
-                    <div id="tests-dropdown-content" class="tests-dropdown-content" role="menu" aria-labelledby="nav-tests">
-                        <a href="#" id="nav-tests-exams" class="dropdown-item disabled" role="menuitem" aria-disabled="true">Exams <span class="coming-soon-inline">Soon</span></a>
-                        <a href="#" id="nav-tests-vr" class="dropdown-item disabled" role="menuitem" aria-disabled="true">VR <span class="coming-soon-inline">Soon</span></a>
-                        <a href="#" id="nav-tests-dm" class="dropdown-item disabled" role="menuitem" aria-disabled="true">DM <span class="coming-soon-inline">Soon</span></a>
-                        <a href="#" id="nav-tests-qr" class="dropdown-item" role="menuitem">QR</a>
-                        <a href="#" id="nav-tests-sjt" class="dropdown-item disabled" role="menuitem" aria-disabled="true">SJT <span class="coming-soon-inline">Soon</span></a>
-                    </div>
-                </li>
-                <li class="nav-tab nav-tab-disabled" role="presentation">
-                    <button id="nav-skills" role="tab" aria-selected="false" aria-controls="coming-soon-panel" disabled>Skills <span class="coming-soon-inline">Soon</span></button>
-                </li>
-            </ul>
         </div>
 
-        <main id="dashboard-content-area" class="dashboard-content-area">
-            <div id="qr-tests-content" class="hidden" role="tabpanel" aria-labelledby="nav-tests-qr-tab">
-                <h1 class="text-3xl font-bold text-gray-800">Quantitative Reasoning Tests</h1>
-                <div class="space-y-3 max-w-lg mx-auto mt-6"> {/* Slightly wider for test links */}
-                    <a href="QR Test 1.html" class="drill-link focus-ring-blue">QR Test 1</a>
-                    <div class="drill-link-disabled">QR Test 2<span class="coming-soon-badge">Coming Soon</span></div>
-                    <div class="drill-link-disabled">QR Test 3<span class="coming-soon-badge">Coming Soon</span></div>
-                    <div class="drill-link-disabled">QR Test 4<span class="coming-soon-badge">Coming Soon</span></div>
-                    <div class="drill-link-disabled">QR Test 5<span class="coming-soon-badge">Coming Soon</span></div>
-                    <div class="drill-link-disabled">QR Test 6<span class="coming-soon-badge">Coming Soon</span></div>
+        <!-- Main Navigation -->
+        <nav class="main-nav" role="navigation" aria-label="Main Navigation">
+            <div id="nav-practice" class="nav-tab nav-tab-disabled" role="button" aria-disabled="true">
+                <span>Practice</span> <span class="coming-soon-inline">Coming Soon</span>
+            </div>
+            <div class="tests-dropdown-container">
+                <div id="nav-tests" class="nav-tab" role="button" aria-haspopup="true">Tests</div>
+                <div class="tests-dropdown-content" role="menu">
+                    <a href="#" id="nav-tests-exams" class="dropdown-item disabled" role="menuitem" aria-disabled="true">Full Exams <span class="coming-soon-inline">Coming Soon</span></a>
+                    <a href="#" id="nav-tests-vr" class="dropdown-item disabled" role="menuitem" aria-disabled="true">Verbal Reasoning <span class="coming-soon-inline">Coming Soon</span></a>
+                    <a href="#" id="nav-tests-dm" class="dropdown-item disabled" role="menuitem" aria-disabled="true">Decision Making <span class="coming-soon-inline">Coming Soon</span></a>
+                    <a href="#" id="nav-tests-qr" class="dropdown-item" role="menuitem">Quantitative Reasoning</a>
+                    <a href="#" id="nav-tests-sjt" class="dropdown-item disabled" role="menuitem" aria-disabled="true">Situational Judgement <span class="coming-soon-inline">Coming Soon</span></a>
                 </div>
             </div>
-            <div id="coming-soon-panel" class="hidden" role="tabpanel">
-                <h2 class="text-2xl font-semibold text-gray-700">Coming Soon!</h2>
-                <p class="text-gray-500 mt-3">This section is under active development. Please check back later for exciting new content.</p>
+            <div id="nav-skills" class="nav-tab nav-tab-disabled" role="button" aria-disabled="true">
+                <span>Skills</span> <span class="coming-soon-inline">Coming Soon</span>
             </div>
-             <div id="default-dashboard-message" role="document">
-                <h2 class="text-2xl font-semibold text-gray-700">Welcome to your MedwithPurpose Dashboard!</h2>
-                <p class="text-gray-500 mt-3">Select an option from the "Tests" menu above to begin your UCAT preparation, or explore other sections as they become available.</p>
+        </nav>
+
+        <!-- Content Area -->
+        <div id="dashboard-content-area" class="dashboard-content-area">
+            <div id="qr-tests-content" class="hidden">
+                <h1 class="text-2xl md:text-3xl font-bold mb-6 text-gray-800">Quantitative Reasoning Tests</h1>
+                <p class="text-gray-500 mb-8 max-w-md mx-auto">Practice with our timed sets to improve your speed and accuracy in the QR section</p>
+                
+                <div class="space-y-4 max-w-md mx-auto">
+                    <a href="QR Test 1.html" class="drill-link">
+                        <span>QR Test 1</span>
+                    </a>
+                    <div class="drill-link-disabled">
+                        <span>QR Test 2</span>
+                        <span class="coming-soon-badge">Coming Soon</span>
+                    </div>
+                    <div class="drill-link-disabled">
+                        <span>QR Test 3</span>
+                        <span class="coming-soon-badge">Coming Soon</span>
+                    </div>
+                    <div class="drill-link-disabled">
+                        <span>QR Test 4</span>
+                        <span class="coming-soon-badge">Coming Soon</span>
+                    </div>
+                    <div class="drill-link-disabled">
+                        <span>QR Test 5</span>
+                        <span class="coming-soon-badge">Coming Soon</span>
+                    </div>
+                    <div class="drill-link-disabled">
+                        <span>QR Test 6</span>
+                        <span class="coming-soon-badge">Coming Soon</span>
+                    </div>
+                </div>
             </div>
-        </main>
+            
+            <div id="coming-soon-content" class="hidden coming-soon-message">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-blue-500 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <h2 class="text-xl font-semibold text-gray-700 mb-2">Coming Soon!</h2>
+                <p class="text-gray-500">We're working hard to bring you more great content. This section is under development and will be available in the near future.</p>
+            </div>
+            
+            <div id="default-dashboard-message" class="default-message">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-blue-500 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <h2 class="text-xl font-semibold text-gray-700 mb-2">Welcome to Your Dashboard!</h2>
+                <p class="text-gray-500 mb-4">Start your UCAT journey by selecting from our practice tests and training materials.</p>
+                <p class="text-sm text-gray-400">Choose "Tests" from the navigation bar to begin.</p>
+            </div>
+        </div>
     </div>
 
     <script>
         // --- Firebase Configuration ---
         const firebaseConfig = {
-          apiKey: "AIzaSyASKsaFFTZ-finv2d5egR9K_mZNstEwdns", // Replace with your actual API key from Firebase Console
+          apiKey: "AIzaSyASKsaFFTZ-finv2d5egR9K_mZNstEwdns",
           authDomain: "mwp-qr-test-page.firebaseapp.com",
           projectId: "mwp-qr-test-page",
           storageBucket: "mwp-qr-test-page.appspot.com",
@@ -320,11 +756,16 @@
           measurementId: "G-4M3ED641M9"
         };
 
-        // Initialize Firebase
-        if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+        // Initialize Firebase with better error handling
+        try {
             firebase.initializeApp(firebaseConfig);
+            const auth = firebase.auth();
+            console.log("Firebase initialized successfully");
+        } catch (error) {
+            console.error("Firebase initialization error:", error);
+            // Show error message to user
+            alert("There was an error connecting to the service. Please try again later.");
         }
-        const auth = firebase.auth();
 
         // --- DOM Elements ---
         const authSection = document.getElementById('auth-section');
@@ -336,6 +777,7 @@
         const loginEmailInput = document.getElementById('login-email');
         const loginPasswordInput = document.getElementById('login-password');
         const loginButton = document.getElementById('login-button');
+        const loginSpinner = document.getElementById('login-spinner');
         const googleLoginButton = document.getElementById('google-login-button');
         const loginErrorP = document.getElementById('login-error');
         const showSignupLink = document.getElementById('show-signup-link');
@@ -344,6 +786,7 @@
         const signupEmailInput = document.getElementById('signup-email');
         const signupPasswordInput = document.getElementById('signup-password');
         const signupButton = document.getElementById('signup-button');
+        const signupSpinner = document.getElementById('signup-spinner');
         const googleSignupButton = document.getElementById('google-signup-button');
         const signupErrorP = document.getElementById('signup-error');
         const showLoginLink = document.getElementById('show-login-link');
@@ -351,177 +794,438 @@
         const studentDisplayNameSpan = document.getElementById('student-display-name');
         const logoutButton = document.getElementById('logout-button');
 
-        // New Nav Elements
-        const navPracticeBtn = document.getElementById('nav-practice');
-        const navTestsBtn = document.getElementById('nav-tests'); // This is the button for Tests tab
-        const navSkillsBtn = document.getElementById('nav-skills');
-        const testsDropdownContent = document.getElementById('tests-dropdown-content');
+        // Navigation elements
+        const navPractice = document.getElementById('nav-practice');
+        const navTests = document.getElementById('nav-tests');
+        const navSkills = document.getElementById('nav-skills');
+        const navTestsExams = document.getElementById('nav-tests-exams');
+        const navTestsVR = document.getElementById('nav-tests-vr');
+        const navTestsDM = document.getElementById('nav-tests-dm');
+        const navTestsQR = document.getElementById('nav-tests-qr');
+        const navTestsSJT = document.getElementById('nav-tests-sjt');
 
-        const navTestsExamsLink = document.getElementById('nav-tests-exams');
-        const navTestsVRLink = document.getElementById('nav-tests-vr');
-        const navTestsDMLink = document.getElementById('nav-tests-dm');
-        const navTestsQRLink = document.getElementById('nav-tests-qr');
-        const navTestsSJTLink = document.getElementById('nav-tests-sjt');
-
-        // Content Area Elements
+        // Content area elements
         const qrTestsContent = document.getElementById('qr-tests-content');
-        const comingSoonPanel = document.getElementById('coming-soon-panel');
+        const comingSoonContent = document.getElementById('coming-soon-content');
         const defaultDashboardMessage = document.getElementById('default-dashboard-message');
-        const allNavTabButtons = document.querySelectorAll('.main-nav button[role="tab"]');
+        const allNavTabs = document.querySelectorAll('.nav-tab');
+        const dashboardContentArea = document.getElementById('dashboard-content-area');
 
+        // --- UI Helpers ---
+        // Set loading state for buttons
+        function setButtonLoading(button, spinner, isLoading) {
+            if (isLoading) {
+                button.disabled = true;
+                spinner.classList.remove('hidden');
+                button.classList.add('opacity-70');
+            } else {
+                button.disabled = false;
+                spinner.classList.add('hidden');
+                button.classList.remove('opacity-70');
+            }
+        }
+
+        // Show error message with fade-in animation
+        function showErrorMessage(element, message) {
+            element.textContent = message;
+            element.style.opacity = "0";
+            element.classList.remove('hidden');
+            
+            // Trigger reflow for animation
+            void element.offsetWidth;
+            
+            element.style.opacity = "1";
+            element.style.transition = "opacity 0.3s ease-in-out";
+        }
+
+        // --- Form Transitions ---
+        function showForm(showFormId, hideFormId) {
+            const showElement = document.getElementById(showFormId);
+            const hideElement = document.getElementById(hideFormId);
+            
+            // First hide the current form
+            hideElement.style.opacity = "0";
+            
+            // After a short delay, switch forms and fade in
+            setTimeout(() => {
+                hideElement.classList.add('hidden');
+                showElement.classList.remove('hidden');
+                showElement.style.opacity = "0";
+                
+                // Trigger reflow
+                void showElement.offsetWidth;
+                
+                showElement.style.opacity = "1";
+                showElement.style.transition = "opacity 0.3s ease-in-out";
+            }, 300);
+            
+            // Clear any error messages
+            loginErrorP.textContent = '';
+            signupErrorP.textContent = '';
+            
+            // Clear password fields for security
+            loginPasswordInput.value = '';
+            signupPasswordInput.value = '';
+        }
 
         // --- UI Toggle (Login/Signup Forms) ---
         showSignupLink.addEventListener('click', (e) => {
             e.preventDefault();
-            loginForm.classList.add('hidden');
-            signupForm.classList.remove('hidden');
-            loginErrorP.textContent = ''; signupErrorP.textContent = '';
+            showForm('signup-form', 'login-form');
         });
 
         showLoginLink.addEventListener('click', (e) => {
             e.preventDefault();
-            signupForm.classList.add('hidden');
-            loginForm.classList.remove('hidden');
-            loginErrorP.textContent = ''; signupErrorP.textContent = '';
+            showForm('login-form', 'signup-form');
         });
+
+        // --- Form Validation ---
+        function validateEmail(email) {
+            const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+            return re.test(String(email).toLowerCase());
+        }
 
         // --- Authentication Logic ---
         signupButton.addEventListener('click', () => {
             const name = signupNameInput.value.trim();
-            const email = signupEmailInput.value;
+            const email = signupEmailInput.value.trim();
             const password = signupPasswordInput.value;
+            
+            // Clear previous errors
             signupErrorP.textContent = '';
-            if (name === '') { signupErrorP.textContent = 'Please enter your name.'; return; }
-            if (password.length < 6) { signupErrorP.textContent = 'Password should be at least 6 characters.'; return; }
-            auth.createUserWithEmailAndPassword(email, password)
-                .then(userCredential => userCredential.user.updateProfile({ displayName: name }))
-                .catch(error => signupErrorP.textContent = error.message);
+            
+            // Validate inputs
+            if (name === '') {
+                showErrorMessage(signupErrorP, 'Please enter your name.');
+                signupNameInput.focus();
+                return;
+            }
+            
+            if (!validateEmail(email)) {
+                showErrorMessage(signupErrorP, 'Please enter a valid email address.');
+                signupEmailInput.focus();
+                return;
+            }
+            
+            if (password.length < 6) {
+                showErrorMessage(signupErrorP, 'Password should be at least 6 characters.');
+                signupPasswordInput.focus();
+                return;
+            }
+
+            // Show loading state
+            setButtonLoading(signupButton, signupSpinner, true);
+
+            // Create account
+            firebase.auth().createUserWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    // Update profile with name
+                    return userCredential.user.updateProfile({
+                        displayName: name
+                    });
+                })
+                .then(() => {
+                    console.log("Account created successfully");
+                    // onAuthStateChanged will handle UI update
+                })
+                .catch((error) => {
+                    console.error("Signup error:", error);
+                    showErrorMessage(signupErrorP, error.message);
+                    
+                    // Reset loading state
+                    setButtonLoading(signupButton, signupSpinner, false);
+                });
         });
 
         loginButton.addEventListener('click', () => {
-            auth.signInWithEmailAndPassword(loginEmailInput.value, loginPasswordInput.value)
-                .catch(error => loginErrorP.textContent = error.message);
+            const email = loginEmailInput.value.trim();
+            const password = loginPasswordInput.value;
+            
+            // Clear previous errors
+            loginErrorP.textContent = '';
+            
+            // Validate inputs
+            if (!validateEmail(email)) {
+                showErrorMessage(loginErrorP, 'Please enter a valid email address.');
+                loginEmailInput.focus();
+                return;
+            }
+            
+            if (password === '') {
+                showErrorMessage(loginErrorP, 'Please enter your password.');
+                loginPasswordInput.focus();
+                return;
+            }
+
+            // Show loading state
+            setButtonLoading(loginButton, loginSpinner, true);
+
+            // Sign in
+            firebase.auth().signInWithEmailAndPassword(email, password)
+                .then(() => {
+                    console.log("Logged in successfully");
+                    // onAuthStateChanged will handle UI update
+                })
+                .catch((error) => {
+                    console.error("Login error:", error);
+                    
+                    // Show user-friendly error message
+                    let errorMessage = error.message;
+                    if (error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
+                        errorMessage = 'Invalid email or password. Please try again.';
+                    }
+                    
+                    showErrorMessage(loginErrorP, errorMessage);
+                    
+                    // Reset loading state
+                    setButtonLoading(loginButton, loginSpinner, false);
+                });
         });
 
         function handleGoogleSignIn() {
+            // Clear error messages
+            loginErrorP.textContent = '';
+            signupErrorP.textContent = '';
+            
             const provider = new firebase.auth.GoogleAuthProvider();
-            loginErrorP.textContent = ''; signupErrorP.textContent = '';
-            auth.signInWithPopup(provider).catch(error => {
-                loginErrorP.textContent = error.message; signupErrorP.textContent = error.message;
-            });
+            
+            // Show loading indicators on both buttons
+            const isOnLoginForm = !loginForm.classList.contains('hidden');
+            setButtonLoading(googleLoginButton, isOnLoginForm ? loginSpinner : signupSpinner, true);
+            
+            firebase.auth().signInWithPopup(provider)
+                .then(() => {
+                    console.log("Google sign-in successful");
+                    // onAuthStateChanged will handle UI update
+                })
+                .catch((error) => {
+                    console.error("Google sign-in error:", error);
+                    
+                    // Show error message on the visible form
+                    if (isOnLoginForm) {
+                        showErrorMessage(loginErrorP, error.message);
+                    } else {
+                        showErrorMessage(signupErrorP, error.message);
+                    }
+                    
+                    // Reset loading state
+                    setButtonLoading(googleLoginButton, isOnLoginForm ? loginSpinner : signupSpinner, false);
+                });
         }
+
         googleLoginButton.addEventListener('click', handleGoogleSignIn);
         googleSignupButton.addEventListener('click', handleGoogleSignIn);
 
-        logoutButton.addEventListener('click', () => auth.signOut().catch(console.error));
-
-        // --- Content Display & Navigation Logic ---
-        function showContent(contentElementToShow) {
-            [qrTestsContent, comingSoonPanel, defaultDashboardMessage].forEach(el => el.classList.add('hidden'));
-            if (contentElementToShow) {
-                contentElementToShow.classList.remove('hidden');
+        logoutButton.addEventListener('click', () => {
+            // Confirm logout
+            if (confirm("Are you sure you want to log out?")) {
+                firebase.auth().signOut()
+                    .then(() => {
+                        console.log("Logged out successfully");
+                        // onAuthStateChanged will handle UI update
+                    })
+                    .catch((error) => {
+                        console.error("Logout error:", error);
+                        alert("There was an error logging out. Please try again.");
+                    });
             }
-        }
-        
-        function setActiveTab(selectedButton) {
-            allNavTabButtons.forEach(button => {
-                button.classList.remove('active');
-                button.setAttribute('aria-selected', 'false');
-            });
-            if (selectedButton) {
-                selectedButton.classList.add('active');
-                selectedButton.setAttribute('aria-selected', 'true');
-            }
-        }
-
-        function toggleTestsDropdown(show) {
-            if (show) {
-                testsDropdownContent.style.display = 'block';
-                navTestsBtn.setAttribute('aria-expanded', 'true');
-            } else {
-                testsDropdownContent.style.display = 'none';
-                navTestsBtn.setAttribute('aria-expanded', 'false');
-            }
-        }
-
-        // Event listeners for main tabs
-        navPracticeBtn.addEventListener('click', () => {
-            showContent(comingSoonPanel);
-            setActiveTab(navPracticeBtn);
-            toggleTestsDropdown(false);
         });
 
-        navSkillsBtn.addEventListener('click', () => {
-            showContent(comingSoonPanel);
-            setActiveTab(navSkillsBtn);
-            toggleTestsDropdown(false);
-        });
-
-        // Tests Tab (Dropdown Toggle)
-        navTestsBtn.addEventListener('click', (event) => {
-            event.stopPropagation(); // Prevent click from closing dropdown immediately if event bubbles to document
-            const isExpanded = navTestsBtn.getAttribute('aria-expanded') === 'true';
-            toggleTestsDropdown(!isExpanded);
-             // Don't set active tab or change content here, let dropdown items do it
-        });
-
-        // Event listeners for dropdown items
-        navTestsQRLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            showContent(qrTestsContent);
-            setActiveTab(navTestsBtn); // Keep "Tests" tab active
-            toggleTestsDropdown(false);
-            qrTestsContent.setAttribute('aria-labelledby', 'nav-tests-qr');
-        });
-
-        [navTestsExamsLink, navTestsVRLink, navTestsDMLink, navTestsSJTLink].forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                if (!link.classList.contains('disabled')) { // Should be disabled via HTML/CSS but good check
-                    showContent(comingSoonPanel);
-                    setActiveTab(navTestsBtn);
-                    toggleTestsDropdown(false);
-                    comingSoonPanel.setAttribute('aria-labelledby', link.id.replace('-link', '-tab')); // For ARIA
+        // --- Content Display Logic ---
+        function showContent(contentId) {
+            // First, hide all content sections with a fade-out effect
+            [qrTestsContent, comingSoonContent, defaultDashboardMessage].forEach(el => {
+                if (!el.classList.contains('hidden')) {
+                    el.style.opacity = "0";
+                    setTimeout(() => {
+                        el.classList.add('hidden');
+                    }, 300);
                 }
             });
+            
+            // After a short delay, show the requested content with fade-in
+            setTimeout(() => {
+                let contentToShow;
+                
+                if (contentId === 'qr') {
+                    contentToShow = qrTestsContent;
+                } else if (contentId === 'comingsoon') {
+                    contentToShow = comingSoonContent;
+                } else {
+                    contentToShow = defaultDashboardMessage;
+                }
+                
+                contentToShow.classList.remove('hidden');
+                contentToShow.style.opacity = "0";
+                
+                // Trigger reflow
+                void contentToShow.offsetWidth;
+                
+                contentToShow.style.opacity = "1";
+                contentToShow.style.transition = "opacity 0.3s ease-in-out";
+            }, 300);
+        }
+        
+        function setActiveTab(selectedTab) {
+            allNavTabs.forEach(tab => {
+                tab.classList.remove('active');
+                // Remove aria-selected attribute for all tabs
+                tab.setAttribute('aria-selected', 'false');
+            });
+            
+            if (selectedTab && !selectedTab.classList.contains('nav-tab-disabled')) {
+                selectedTab.classList.add('active');
+                // Set aria-selected for the active tab
+                selectedTab.setAttribute('aria-selected', 'true');
+            }
+        }
+
+        // --- Navigation Event Listeners ---
+        navPractice.addEventListener('click', () => {
+            if (!navPractice.classList.contains('nav-tab-disabled')) {
+                showContent('comingsoon');
+                setActiveTab(navPractice);
+            }
+        });
+
+        navTestsQR.addEventListener('click', (e) => {
+            e.preventDefault();
+            showContent('qr');
+            setActiveTab(navTests);
+        });
+
+        // For other "Coming Soon" test types under "Tests"
+        [navTestsExams, navTestsVR, navTestsDM, navTestsSJT].forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                showContent('comingsoon');
+                setActiveTab(navTests);
+            });
         });
         
-        // Close dropdown if clicked outside
-        document.addEventListener('click', (event) => {
-            if (!navTestsBtn.contains(event.target) && !testsDropdownContent.contains(event.target)) {
-                toggleTestsDropdown(false);
-            }
+        navTests.addEventListener('click', () => {
+            showContent('default');
+            setActiveTab(navTests);
         });
-        // Close dropdown with Escape key
-        document.addEventListener('keydown', (event) => {
-            if (event.key === 'Escape' && navTestsBtn.getAttribute('aria-expanded') === 'true') {
-                toggleTestsDropdown(false);
-                navTestsBtn.focus(); // Return focus to the tests button
+        
+        navSkills.addEventListener('click', () => {
+            if (!navSkills.classList.contains('nav-tab-disabled')) {
+                showContent('comingsoon');
+                setActiveTab(navSkills);
             }
         });
 
+        // --- Keyboard Accessibility ---
+        // Handle keyboard navigation for dropdown
+        navTests.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown') {
+                e.preventDefault();
+                const dropdown = document.querySelector('.tests-dropdown-content');
+                dropdown.style.display = 'block';
+                dropdown.style.opacity = '1';
+                dropdown.style.visibility = 'visible';
+                dropdown.style.transform = 'translateY(0)';
+                
+                // Focus the first menu item
+                const firstMenuItem = dropdown.querySelector('a:not(.disabled)');
+                if (firstMenuItem) firstMenuItem.focus();
+            }
+        });
 
-        // Auth State Change Listener
-        auth.onAuthStateChanged(user => {
+        // Auth State Change Listener with improved transitions
+        firebase.auth().onAuthStateChanged(user => {
             if (user) {
+                // User is signed in
                 studentDisplayNameSpan.textContent = user.displayName || user.email || 'Student';
-                authSection.classList.add('hidden');
-                dashboardWrapper.classList.remove('hidden');
+                
+                // Store user info in localStorage
                 localStorage.setItem('qrStudentName', user.displayName || user.email || '');
-                showContent(defaultDashboardMessage);
-                setActiveTab(null);
-                toggleTestsDropdown(false); // Ensure dropdown is closed on login
+                
+                // Fade out auth section and fade in dashboard
+                authSection.style.opacity = "0";
+                setTimeout(() => {
+                    authSection.classList.add('hidden');
+                    dashboardWrapper.classList.remove('hidden');
+                    dashboardWrapper.style.opacity = "0";
+                    
+                    // Trigger reflow
+                    void dashboardWrapper.offsetWidth;
+                    
+                    dashboardWrapper.style.opacity = "1";
+                    dashboardWrapper.style.transition = "opacity 0.5s ease-in-out";
+                    
+                    // Show default content
+                    showContent('default');
+                    setActiveTab(null);
+                }, 300);
             } else {
-                authSection.classList.remove('hidden');
-                dashboardWrapper.classList.add('hidden');
+                // User is signed out
+                
+                // Fade out dashboard and fade in auth section
+                if (!dashboardWrapper.classList.contains('hidden')) {
+                    dashboardWrapper.style.opacity = "0";
+                    setTimeout(() => {
+                        dashboardWrapper.classList.add('hidden');
+                        authSection.classList.remove('hidden');
+                        authSection.style.opacity = "0";
+                        
+                        // Trigger reflow
+                        void authSection.offsetWidth;
+                        
+                        authSection.style.opacity = "1";
+                        authSection.style.transition = "opacity 0.5s ease-in-out";
+                    }, 300);
+                } else {
+                    // Initial load
+                    authSection.classList.remove('hidden');
+                }
+                
+                // Remove user info from localStorage
                 localStorage.removeItem('qrStudentName');
-                [loginEmailInput, loginPasswordInput, signupNameInput, signupEmailInput, signupPasswordInput].forEach(input => input.value = '');
-                [loginErrorP, signupErrorP].forEach(p => p.textContent = '');
+                
+                // Reset form fields
+                loginEmailInput.value = '';
+                loginPasswordInput.value = '';
+                signupNameInput.value = '';
+                signupEmailInput.value = '';
+                signupPasswordInput.value = '';
+                
+                // Clear error messages
+                loginErrorP.textContent = '';
+                signupErrorP.textContent = '';
+                
+                // Reset loading states
+                setButtonLoading(loginButton, loginSpinner, false);
+                setButtonLoading(signupButton, signupSpinner, false);
             }
         });
 
-        // Initial state
-        showContent(defaultDashboardMessage); 
+        // Initialize content to default
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set initial state
+            showContent('default');
+            
+            // Add handling for Enter key on inputs
+            loginEmailInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') loginPasswordInput.focus();
+            });
+            
+            loginPasswordInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') loginButton.click();
+            });
+            
+            signupNameInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') signupEmailInput.focus();
+            });
+            
+            signupEmailInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') signupPasswordInput.focus();
+            });
+            
+            signupPasswordInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') signupButton.click();
+            });
+        });
     </script>
 </body>
 </html>
