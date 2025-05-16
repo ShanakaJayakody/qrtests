@@ -4,165 +4,375 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Dashboard - QR Drills</title>
+    <link rel="icon" href="https://ik.imagekit.io/mwp/2.svg?updatedAt=1745982956185" type="image/svg+xml">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Custom styles for body background and font */
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f0f4f8; /* Light blue-gray background */
+            background-color: #f0f4f8;
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start; /* Align to top for longer content */
             min-height: 100vh;
-            padding: 1rem; /* Add some padding around the content */
-        }
-        /* Optional: Add a subtle shadow and rounded corners to the main container */
-        .dashboard-container {
-            background-color: #ffffff;
-            border-radius: 0.75rem; /* More rounded corners */
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            padding: 2rem; /* Increased padding */
-            width: 100%;
-            max-width: 800px; /* Increased max-width for new sections */
-            text-align: center; /* Center align content */
-        }
-        /* Style for the drill links */
-        .drill-link {
-            display: block; /* Make links block for better click area */
-            background-color: #e2f0ff; /* Light blue background for links */
-            color: #0056b3; /* Darker blue text color */
-            padding: 1rem; /* Padding inside links */
-            margin-bottom: 0.75rem; /* Space between links */
-            border-radius: 0.5rem; /* Rounded corners for links */
-            text-decoration: none; /* Remove underline */
-            font-size: 1.1rem; /* Slightly larger font size */
-            font-weight: 600; /* Semi-bold font */
-            transition: background-color 0.2s ease, transform 0.1s ease; /* Smooth hover effect */
-            border: 1px solid #b3d4ff; /* Subtle border */
-        }
-        .drill-link:hover {
-            background-color: #cce0ff; /* Lighter blue on hover */
-            transform: translateY(-2px); /* Slight lift effect */
-        }
-         .drill-link:active {
-            transform: translateY(0); /* Press down effect */
-        }
-        /* Add a logo or image */
-        .logo {
-            max-width: 180px; /* Increased from 150px to 180px (20% larger) */
-            margin: 0 auto 1.5rem auto; /* Center and add space below */
-        }
-        /* Style for disabled links */
-        .drill-link-disabled {
-            display: block;
-            background-color: #f0f0f0; /* Light gray background */
-            color: #a0a0a0; /* Gray text */
             padding: 1rem;
-            margin-bottom: 0.75rem;
-            border-radius: 0.5rem;
-            text-decoration: none;
-            font-size: 1.1rem;
-            font-weight: 600;
-            border: 1px solid #ddd;
-            cursor: not-allowed; /* Show not-allowed cursor */
-            pointer-events: none; /* Disable clicks */
-            position: relative;
+        }
+        .dashboard-container, .auth-container {
+            background-color: #ffffff;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            padding: 2rem;
+            width: 100%;
+            max-width: 600px; /* Adjusted for auth forms */
+            text-align: center;
+            margin-top: 2rem; /* Add some margin at the top */
+        }
+        .logo {
+            max-width: 160px; /* Slightly smaller */
+            margin: 0 auto 1.5rem auto;
+        }
+        .drill-link {
+            display: block; background-color: #e2f0ff; color: #0056b3; padding: 1rem; margin-bottom: 0.75rem;
+            border-radius: 0.5rem; text-decoration: none; font-size: 1.1rem; font-weight: 600;
+            transition: background-color 0.2s ease, transform 0.1s ease; border: 1px solid #b3d4ff;
+        }
+        .drill-link:hover { background-color: #cce0ff; transform: translateY(-2px); }
+        .drill-link:active { transform: translateY(0); }
+        .drill-link-disabled {
+            display: block; background-color: #f0f0f0; color: #a0a0a0; padding: 1rem; margin-bottom: 0.75rem;
+            border-radius: 0.5rem; text-decoration: none; font-size: 1.1rem; font-weight: 600;
+            border: 1px solid #ddd; cursor: not-allowed; pointer-events: none; position: relative;
         }
         .coming-soon-badge {
-            position: absolute;
-            top: 50%;
-            right: 1rem;
-            transform: translateY(-50%);
-            background-color: #e0e0e0;
-            color: #707070;
-            font-size: 0.7rem;
-            padding: 0.25rem 0.5rem;
-            border-radius: 1rem;
-            font-weight: normal;
+            position: absolute; top: 50%; right: 1rem; transform: translateY(-50%); background-color: #e0e0e0;
+            color: #707070; font-size: 0.7rem; padding: 0.25rem 0.5rem; border-radius: 1rem; font-weight: normal;
         }
+        /* Auth Form Styles */
+        input[type="email"], input[type="password"], input[type="text"].auth-input {
+            width: 100%; padding: 0.875rem; margin-bottom: 1.25rem; border: 1px solid #d1d5db;
+            border-radius: 0.375rem; box-sizing: border-box; font-size: 1rem; transition: border-color 0.2s;
+        }
+        input[type="email"]:focus, input[type="password"]:focus, input[type="text"].auth-input:focus {
+            outline: none; border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4);
+        }
+        .btn {
+            display: flex; align-items: center; justify-content: center; width: 100%;
+            padding: 0.75rem 1.5rem; border: none; border-radius: 0.375rem; cursor: pointer;
+            font-weight: 600; font-size: 0.95rem; transition: background-color 0.2s, box-shadow 0.2s;
+            text-align: center; box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px 0 rgba(0,0,0,0.06);
+        }
+        .btn:hover { box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06); }
+        .btn-primary { background-color: #2563eb; color: white; }
+        .btn-primary:hover { background-color: #1d4ed8; }
+        .btn-secondary { background-color: #6b7280; color: white; }
+        .btn-secondary:hover { background-color: #4b5563; }
+        .btn-google { background-color: #ffffff; color: #374151; border: 1px solid #d1d5db; }
+        .btn-google:hover { background-color: #f9fafb; }
+        .btn-google img { width: 20px; height: 20px; margin-right: 0.75rem; }
+        .btn-logout { background-color: #ef4444; color: white; padding: 0.5rem 1rem; font-size: 0.875rem; }
+        .btn-logout:hover { background-color: #dc2626; }
+        .auth-toggle-link { color: #2563eb; cursor: pointer; text-decoration: underline; font-size: 0.875rem; }
+        .auth-toggle-link:hover { color: #1d4ed8; }
+        .error-message { color: #ef4444; font-size: 0.875rem; min-height: 1.25rem; margin-top: 0.5rem; }
+        .hidden { display: none !important; }
+        .auth-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .welcome-message { text-align: left; margin-bottom: 1.5rem; font-size: 1.1rem;}
     </style>
-     <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-</head>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    </head>
 <body>
 
-    <div class="dashboard-container">
-         <img src="https://ik.imagekit.io/mwp/MWP%20Color%20no%20background.png?updatedAt=1745982959141" alt="MedwithPurpose Logo" class="logo" onerror="this.style.display='none'; this.onerror=null;">
-
-        <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6">Quantitative Reasoning Tests</h1>
-
-        <div class="mb-6 text-left text-lg font-semibold text-gray-700">Welcome <span id="student-name-editable" contenteditable="true" class="font-normal text-gray-900 px-2 py-1 border border-dashed border-transparent hover:border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded focus:outline-none transition-colors duration-150">Your Name</span><svg id="edit-name-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 inline-block ml-1 text-gray-500 align-middle"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" /></svg></div>
-
-        <div class="space-y-3">
-            <a href="QR Test 1.html" class="drill-link">QR Test 1</a>
-
-            <div class="drill-link-disabled">QR Test 2<span class="coming-soon-badge">Coming Soon</span></div>
-
-            <div class="drill-link-disabled">QR Test 3<span class="coming-soon-badge">Coming Soon</span></div>
-
-            <div class="drill-link-disabled">QR Test 4<span class="coming-soon-badge">Coming Soon</span></div>
-
-            <div class="drill-link-disabled">QR Test 5<span class="coming-soon-badge">Coming Soon</span></div>
-
-            <div class="drill-link-disabled">QR Test 6<span class="coming-soon-badge">Coming Soon</span></div>
+    <div id="auth-section" class="auth-container">
+        <img src="https://ik.imagekit.io/mwp/MWP%20Color%20no%20background.png?updatedAt=1745982959141" alt="MedwithPurpose Logo" class="logo" onerror="this.style.display='none'; this.onerror=null;">
+        
+        <div id="login-form">
+            <h2 class="text-2xl font-bold text-center mb-6 text-gray-800">Student Login</h2>
+            <input type="email" id="login-email" placeholder="Email Address" class="auth-input">
+            <input type="password" id="login-password" placeholder="Password" class="auth-input">
+            <button id="login-button" class="btn btn-primary mb-4">Login</button>
+            <div class="text-center mb-4 social-login-divider"><span>OR</span></div>
+            <button id="google-login-button" class="btn btn-google mb-4">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google icon">
+                Sign in with Google
+            </button>
+            <p class="text-sm text-gray-600">Don't have an account? <a href="#" id="show-signup-link" class="auth-toggle-link">Sign Up</a></p>
+            <p id="login-error" class="error-message text-center mt-3"></p>
         </div>
 
+        <div id="signup-form" class="hidden">
+            <h2 class="text-2xl font-bold text-center mb-6 text-gray-800">Create Student Account</h2>
+            <input type="text" id="signup-name" placeholder="Full Name" class="auth-input"> <input type="email" id="signup-email" placeholder="Email Address" class="auth-input">
+            <input type="password" id="signup-password" placeholder="Password (min. 6 characters)" class="auth-input">
+            <button id="signup-button" class="btn btn-primary mb-4">Sign Up</button>
+            <div class="text-center mb-4 social-login-divider"><span>OR</span></div>
+            <button id="google-signup-button" class="btn btn-google mb-4">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google icon">
+                Sign up with Google
+            </button>
+            <p class="text-sm text-gray-600">Already have an account? <a href="#" id="show-login-link" class="auth-toggle-link">Login</a></p>
+            <p id="signup-error" class="error-message text-center mt-3"></p>
+        </div>
+    </div>
+
+    <div id="dashboard-content" class="dashboard-container hidden">
+        <div class="auth-header">
+            <img src="https://ik.imagekit.io/mwp/MWP%20Color%20no%20background.png?updatedAt=1745982959141" alt="MedwithPurpose Logo" class="h-10" onerror="this.style.display='none'; this.onerror=null;">
+            <button id="logout-button" class="btn-logout">Logout</button>
+        </div>
+        
+        <div id="welcome-section" class="welcome-message">
+            Welcome, <span id="student-display-name" class="font-semibold">Student</span>!
+        </div>
+
+        <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6">Quantitative Reasoning Tests</h1>
+        <div class="space-y-3">
+            <a href="QR Test 1.html" class="drill-link">QR Test 1</a>
+            <div class="drill-link-disabled">QR Test 2<span class="coming-soon-badge">Coming Soon</span></div>
+            <div class="drill-link-disabled">QR Test 3<span class="coming-soon-badge">Coming Soon</span></div>
+            <div class="drill-link-disabled">QR Test 4<span class="coming-soon-badge">Coming Soon</span></div>
+            <div class="drill-link-disabled">QR Test 5<span class="coming-soon-badge">Coming Soon</span></div>
+            <div class="drill-link-disabled">QR Test 6<span class="coming-soon-badge">Coming Soon</span></div>
+        </div>
     </div>
 
     <script>
-        const nameSpan = document.getElementById('student-name-editable');
-        const editIcon = document.getElementById('edit-name-icon'); // Get the icon
-        const localStorageKey = 'qrStudentName';
+        // --- Firebase Configuration ---
+        const firebaseConfig = {
+          apiKey: "AIzaSyASKsaFFTZ-finv2d5egR9K_mZNstEwdns", // From your QR Test 1.html
+          authDomain: "mwp-qr-test-page.firebaseapp.com",
+          projectId: "mwp-qr-test-page",
+          storageBucket: "mwp-qr-test-page.appspot.com",
+          messagingSenderId: "309084045110", // From your QR Test 1.html
+          appId: "1:309084045110:web:b09ca0fdff84b094963d97", // From your QR Test 1.html
+          measurementId: "G-4M3ED641M9" // From your QR Test 1.html
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        // const db = firebase.firestore(); // Only needed if dashboard reads from Firestore
+
+        // --- DOM Elements ---
+        const authSection = document.getElementById('auth-section');
+        const dashboardContent = document.getElementById('dashboard-content');
+        
+        const loginForm = document.getElementById('login-form');
+        const signupForm = document.getElementById('signup-form');
+        
+        const loginEmailInput = document.getElementById('login-email');
+        const loginPasswordInput = document.getElementById('login-password');
+        const loginButton = document.getElementById('login-button');
+        const googleLoginButton = document.getElementById('google-login-button');
+        const loginErrorP = document.getElementById('login-error');
+        const showSignupLink = document.getElementById('show-signup-link');
+
+        const signupNameInput = document.getElementById('signup-name'); // Name input
+        const signupEmailInput = document.getElementById('signup-email');
+        const signupPasswordInput = document.getElementById('signup-password');
+        const signupButton = document.getElementById('signup-button');
+        const googleSignupButton = document.getElementById('google-signup-button');
+        const signupErrorP = document.getElementById('signup-error');
+        const showLoginLink = document.getElementById('show-login-link');
+
+        const studentDisplayNameSpan = document.getElementById('student-display-name');
+        const logoutButton = document.getElementById('logout-button');
+
+        // --- UI Toggle ---
+        showSignupLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            loginForm.classList.add('hidden');
+            signupForm.classList.remove('hidden');
+            loginErrorP.textContent = '';
+            signupErrorP.textContent = '';
+        });
+
+        showLoginLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            signupForm.classList.add('hidden');
+            loginForm.classList.remove('hidden');
+            loginErrorP.textContent = '';
+            signupErrorP.textContent = '';
+        });
+
+        // --- Authentication Logic ---
+
+        // Sign Up with Email/Password
+        signupButton.addEventListener('click', () => {
+            const name = signupNameInput.value.trim();
+            const email = signupEmailInput.value;
+            const password = signupPasswordInput.value;
+            signupErrorP.textContent = '';
+
+            if (name === '') {
+                signupErrorP.textContent = 'Please enter your name.';
+                return;
+            }
+            if (password.length < 6) {
+                signupErrorP.textContent = 'Password should be at least 6 characters.';
+                return;
+            }
+
+            auth.createUserWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    // Signed in, now update profile with name
+                    return userCredential.user.updateProfile({
+                        displayName: name
+                    });
+                })
+                .then(() => {
+                    console.log("Student signed up and profile updated:", auth.currentUser);
+                    // onAuthStateChanged will handle UI update to show dashboard
+                    // No need to manually hide/show here as onAuthStateChanged will fire
+                })
+                .catch((error) => {
+                    console.error("Student signup error:", error);
+                    signupErrorP.textContent = error.message;
+                });
+        });
+
+        // Login with Email/Password
+        loginButton.addEventListener('click', () => {
+            const email = loginEmailInput.value;
+            const password = loginPasswordInput.value;
+            loginErrorP.textContent = '';
+
+            auth.signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    console.log("Student logged in:", userCredential.user);
+                    // onAuthStateChanged will handle UI update
+                })
+                .catch((error) => {
+                    console.error("Student login error:", error);
+                    loginErrorP.textContent = error.message;
+                });
+        });
+
+        // Google Sign-In/Sign-Up
+        function handleGoogleSignIn() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            loginErrorP.textContent = '';
+            signupErrorP.textContent = '';
+
+            auth.signInWithPopup(provider)
+                .then((result) => {
+                    console.log("Student signed in/up with Google:", result.user);
+                    // If it's a new user via Google, their displayName might already be set from Google.
+                    // onAuthStateChanged will handle UI update.
+                })
+                .catch((error) => {
+                    console.error("Google Sign-In/Up Error:", error);
+                    loginErrorP.textContent = error.message; // Show error on login form for simplicity
+                    signupErrorP.textContent = error.message; // Or on signup form
+                });
+        }
+        googleLoginButton.addEventListener('click', handleGoogleSignIn);
+        googleSignupButton.addEventListener('click', handleGoogleSignIn);
+
+
+        // Logout
+        logoutButton.addEventListener('click', () => {
+            auth.signOut().catch((error) => {
+                console.error("Student logout error:", error);
+            });
+        });
+
+        // Auth State Change Listener
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                // User is signed in
+                console.log("Student auth state: Logged in", user);
+                studentDisplayNameSpan.textContent = user.displayName || user.email || 'Student'; // Use displayName if available
+                authSection.classList.add('hidden');
+                dashboardContent.classList.remove('hidden');
+
+                // Store student name in localStorage for QR Test pages
+                // This part is slightly different from admin; QR test pages expect 'qrStudentName'
+                // And might need to be updated to use student's UID for data submission.
+                // For now, let's keep the local name functionality as a fallback or display.
+                localStorage.setItem('qrStudentName', user.displayName || user.email || '');
+
+            } else {
+                // User is signed out
+                console.log("Student auth state: Logged out");
+                authSection.classList.remove('hidden');
+                dashboardContent.classList.add('hidden');
+                localStorage.removeItem('qrStudentName'); // Clear name on logout
+            }
+        });
+
+        // --- Existing Name Editing Logic (Optional: remove if name comes from auth profile) ---
+        // The existing script for 'student-name-editable' is kept below.
+        // You might want to disable editing or remove this if the display name
+        // is primarily managed by the Firebase Auth profile.
+        // For now, it will work independently.
+        const nameSpan = document.getElementById('student-name-editable'); //This refers to the OLD one, needs update if you remove old welcome section
+        // If you keep the 'student-name-editable' span, ensure it's correctly targeted.
+        // The new welcome section uses 'student-display-name'. Let's assume you want to remove the old editable one.
+        // For simplicity, the editable name logic below is mostly for illustration if you were to adapt it.
+        // Given the Firebase Auth integration, it's better to rely on user.displayName.
+
+        /*
+        // This section for editable name might be redundant now with auth.
+        // Consider if you still want a locally editable name separate from auth profile.
+        const oldNameSpan = document.getElementById('student-name-editable'); // This ID is in your original HTML
+        const editIcon = document.getElementById('edit-name-icon'); 
+        const localStorageKey = 'qrStudentName'; // Key used by QR test pages
         const defaultName = 'Your Name';
         const smallIconClasses = ['w-3', 'h-3'];
         const normalIconClasses = ['w-4', 'h-4'];
 
+        // Function to set icon size based on whether name is default
         function setIconSize(isSmall) {
-            if (isSmall) {
-                editIcon.classList.remove(...normalIconClasses);
-                editIcon.classList.add(...smallIconClasses);
-            } else {
-                editIcon.classList.remove(...smallIconClasses);
-                editIcon.classList.add(...normalIconClasses);
+            if (editIcon) { // Check if editIcon exists
+                if (isSmall) {
+                    editIcon.classList.remove(...normalIconClasses);
+                    editIcon.classList.add(...smallIconClasses);
+                } else {
+                    editIcon.classList.remove(...smallIconClasses);
+                    editIcon.classList.add(...normalIconClasses);
+                }
             }
         }
-
-        // Load name from local storage on page load
+        // Load name from local storage on page load for the editable span
         document.addEventListener('DOMContentLoaded', () => {
-            const savedName = localStorage.getItem(localStorageKey);
-            if (savedName && savedName.trim() !== '' && savedName.trim() !== defaultName) {
-                nameSpan.textContent = savedName;
-                setIconSize(true); // Make icon small if name is not default
-            } else {
-                nameSpan.textContent = defaultName; // Default if nothing saved or empty or exactly 'Your Name'
-                setIconSize(false); // Ensure icon is normal size
-                if (savedName === defaultName) localStorage.removeItem(localStorageKey); // Clear storage if it holds the default
+            if (oldNameSpan) { // Check if oldNameSpan exists
+                const savedName = localStorage.getItem(localStorageKey);
+                if (savedName && savedName.trim() !== '' && savedName.trim() !== defaultName) {
+                    oldNameSpan.textContent = savedName;
+                    setIconSize(true);
+                } else {
+                    oldNameSpan.textContent = defaultName;
+                    setIconSize(false);
+                    if (savedName === defaultName) localStorage.removeItem(localStorageKey);
+                }
             }
         });
+        // Save name to local storage when the old editable span loses focus
+        if (oldNameSpan) {
+            oldNameSpan.addEventListener('blur', () => {
+                const currentName = oldNameSpan.textContent.trim();
+                if (currentName !== '' && currentName !== defaultName) {
+                    localStorage.setItem(localStorageKey, currentName);
+                    setIconSize(true);
+                } else {
+                    localStorage.removeItem(localStorageKey);
+                    oldNameSpan.textContent = defaultName;
+                    setIconSize(false);
+                }
+            });
+            oldNameSpan.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    oldNameSpan.blur();
+                }
+            });
+        }
+        */
 
-        // Save name to local storage when the span loses focus
-        nameSpan.addEventListener('blur', () => {
-            const currentName = nameSpan.textContent.trim();
-            if (currentName !== '' && currentName !== defaultName) {
-                localStorage.setItem(localStorageKey, currentName);
-                setIconSize(true); // Make icon small
-            } else {
-                // Handle case where user clears the name or enters the default
-                localStorage.removeItem(localStorageKey);
-                nameSpan.textContent = defaultName;
-                setIconSize(false); // Make icon normal size
-            }
-        });
-
-        // Optional: Prevent line breaks if user presses Enter
-        nameSpan.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault(); // Prevent adding a new line
-                nameSpan.blur(); // Trigger the blur event to save
-            }
-        });
     </script>
-
 </body>
 </html>
