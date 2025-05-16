@@ -3,242 +3,293 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Dashboard - QR Drills</title>
+    <title>Student Dashboard - MedwithPurpose</title>
     <link rel="icon" href="https://ik.imagekit.io/mwp/2.svg?updatedAt=1745982956185" type="image/svg+xml">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f0f4f8;
+            background-color: #f0f4f8; /* Light grey-blue background */
             display: flex;
             justify-content: center;
-            align-items: flex-start; /* Align to top for longer content */
+            align-items: flex-start;
             min-height: 100vh;
-            padding: 0; /* Changed from padding: 1rem; */
+            padding: 1rem;
+            color: #1f2937; /* Default text color */
         }
         .auth-container {
             background-color: #ffffff;
-            border-radius: 0.75rem;
+            border-radius: 0.75rem; /* 12px */
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            padding: 2rem;
+            padding: 2.5rem; /* 40px */
             width: 100%;
-            max-width: 600px;
+            max-width: 450px; /* Slightly narrower for auth forms */
             text-align: center;
-            margin-top: 2rem;
+            margin-top: 3rem; /* 48px */
         }
         .dashboard-wrapper {
             background-color: #ffffff;
             border-radius: 0.75rem;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            width: 100%; /* Changed from max-width: 900px; */
-            margin: 0; /* Changed from margin-top: 1rem; */
-            min-height: 100vh; /* Changed from min-height: 70vh; */
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+            width: 100%;
+            max-width: 960px; /* Accommodate wider dashboard content */
+            margin-top: 1rem;
+            min-height: 80vh; /* Ensure it takes up good portion of screen */
+            display: flex;
+            flex-direction: column;
         }
-        .logo {
-            max-width: 160px;
-            margin: 0 auto 1.5rem auto;
+        .logo-auth {
+            max-width: 150px;
+            margin: 0 auto 2rem auto; /* More space below logo */
         }
         .dashboard-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 1rem 2rem;
-            border-bottom: 1px solid #e5e7eb;
+            padding: 1rem 1.5rem; /* Consistent padding */
+            border-bottom: 1px solid #e5e7eb; /* Tailwind gray-200 */
         }
-        .dashboard-header .logo-small {
-            max-width: 120px;
+        .dashboard-header .logo-dashboard {
+            max-width: 130px;
+            height: auto;
+        }
+        .main-nav-container {
+            background-color: #f9fafb; /* Tailwind gray-50 */
+            padding: 0.5rem 1rem;
+            border-bottom: 1px solid #e5e7eb;
         }
         .main-nav {
             display: flex;
-            justify-content: center;
-            background-color: #f9fafb;
-            padding: 0.5rem 0;
-            border-bottom: 1px solid #e5e7eb;
+            justify-content: center; /* Center tabs */
+            align-items: center;
+            list-style: none;
+            margin: 0;
+            padding: 0;
         }
-        .nav-tab {
-            padding: 0.75rem 1.5rem;
-            margin: 0 0.5rem;
+        .nav-tab > button, .nav-tab > div { /* Target button or div inside nav-tab for styling */
+            padding: 0.875rem 1.75rem; /* 14px 28px */
+            margin: 0 0.25rem; /* 4px */
             cursor: pointer;
             font-weight: 500;
-            color: #4b5563;
-            border-bottom: 2px solid transparent;
+            color: #4b5563; /* Tailwind gray-600 */
+            border-bottom: 3px solid transparent;
             transition: color 0.2s ease, border-color 0.2s ease;
+            border-radius: 0.375rem 0.375rem 0 0; /* Slight rounding on top */
+            display: inline-flex; /* For icon alignment if any */
+            align-items: center;
         }
-        .nav-tab:hover, .nav-tab.active {
-            color: #2563eb;
+        .nav-tab > button:hover, .nav-tab > div:hover,
+        .nav-tab > button.active, .nav-tab > div.active {
+            color: #2563eb; /* Tailwind blue-600 */
             border-bottom-color: #2563eb;
         }
-        .nav-tab-disabled {
-             color: #9ca3af; cursor: not-allowed;
+        .nav-tab > button:focus-visible, .nav-tab > div:focus-visible {
+            outline: 2px solid #3b82f6; /* Tailwind blue-500 */
+            outline-offset: 2px;
         }
-        .nav-tab-disabled .coming-soon-inline {
-            font-size: 0.7rem; color: #9ca3af; margin-left: 4px;
+        .nav-tab-disabled > button, .nav-tab-disabled > div {
+             color: #9ca3af; /* Tailwind gray-400 */
+             cursor: not-allowed;
+        }
+        .nav-tab-disabled > button:hover, .nav-tab-disabled > div:hover {
+            color: #9ca3af;
+            border-bottom-color: transparent;
+        }
+        .coming-soon-inline {
+            font-size: 0.65rem; /* Smaller */
+            color: #6b7280; /* Tailwind gray-500 */
+            margin-left: 6px;
+            font-weight: 400;
+            background-color: #e5e7eb;
+            padding: 0.1rem 0.3rem;
+            border-radius: 0.25rem;
         }
 
-        /* Dropdown for Tests Tab */
         .tests-dropdown-container {
             position: relative;
         }
         .tests-dropdown-content {
-            display: none;
+            display: none; /* Controlled by JS */
             position: absolute;
             background-color: #ffffff;
-            min-width: 180px;
-            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.1);
-            z-index: 10;
-            border-radius: 0.5rem;
+            min-width: 200px; /* Wider dropdown */
+            box-shadow: 0px 8px 24px 0px rgba(0,0,0,0.12); /* Softer, larger shadow */
+            z-index: 50; /* Ensure it's above content */
+            border-radius: 0.5rem; /* 8px */
             margin-top: 0.25rem;
             border: 1px solid #e5e7eb;
-        }
-        .tests-dropdown-container:hover .tests-dropdown-content {
-            display: block;
+            overflow: hidden; /* For rounded corners on items */
         }
         .dropdown-item {
-            color: #374151;
-            padding: 0.75rem 1rem;
+            color: #374151; /* Tailwind gray-700 */
+            padding: 0.875rem 1.25rem; /* 14px 20px */
             text-decoration: none;
             display: block;
-            font-size: 0.9rem;
-            border-bottom: 1px solid #f3f4f6;
+            font-size: 0.95rem; /* Slightly larger */
+            transition: background-color 0.15s ease, color 0.15s ease;
         }
-        .dropdown-item:last-child {
-            border-bottom: none;
-        }
-        .dropdown-item:hover:not(.disabled) {
-            background-color: #f3f4f6;
-            color: #1d4ed8;
+        .dropdown-item:not(.disabled):hover,
+        .dropdown-item:not(.disabled):focus-visible {
+            background-color: #eff6ff; /* Tailwind blue-50 */
+            color: #1d4ed8; /* Tailwind blue-700 */
+            outline: none;
         }
         .dropdown-item.disabled {
             color: #9ca3af;
             cursor: not-allowed;
             background-color: #f9fafb;
         }
-         .dropdown-item.disabled .coming-soon-inline {
-            font-size: 0.65rem; color: #9ca3af; margin-left: 4px;
-        }
-
+        .dropdown-item.disabled .coming-soon-inline { font-size: 0.6rem; }
 
         .dashboard-content-area {
-            padding: 2rem;
+            padding: 2rem 2.5rem; /* 32px 40px */
             text-align: center;
+            flex-grow: 1; /* Allow content area to fill space */
+            display: flex;
+            flex-direction: column;
+            justify-content: center; /* Center content vertically if not much */
         }
+        .dashboard-content-area h1 { margin-bottom: 1.5rem; } /* More space for main titles */
+        .dashboard-content-area h2 { margin-bottom: 1rem; }
 
         .drill-link {
-            display: block; background-color: #e2f0ff; color: #0056b3; padding: 1rem; margin-bottom: 0.75rem;
-            border-radius: 0.5rem; text-decoration: none; font-size: 1.1rem; font-weight: 600;
-            transition: background-color 0.2s ease, transform 0.1s ease; border: 1px solid #b3d4ff;
+            display: block; background-color: #eff6ff; color: #1e40af; padding: 1.125rem; /* 18px */
+            margin-bottom: 1rem; border-radius: 0.5rem; text-decoration: none; font-size: 1.1rem;
+            font-weight: 500; transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+            border: 1px solid #bfdbfe; /* Lighter blue border */
+            box-shadow: 0 1px 2px 0 rgba(0,0,0,0.03);
         }
-        .drill-link:hover { background-color: #cce0ff; transform: translateY(-2px); }
-        .drill-link:active { transform: translateY(0); }
+        .drill-link:hover { background-color: #dbeafe; transform: translateY(-2px); box-shadow: 0 4px 8px -1px rgba(0,0,0,0.07); }
         .drill-link-disabled {
-            display: block; background-color: #f0f0f0; color: #a0a0a0; padding: 1rem; margin-bottom: 0.75rem;
-            border-radius: 0.5rem; text-decoration: none; font-size: 1.1rem; font-weight: 600;
-            border: 1px solid #ddd; cursor: not-allowed; pointer-events: none; position: relative;
+            display: block; background-color: #f3f4f6; color: #9ca3af; padding: 1.125rem;
+            margin-bottom: 1rem; border-radius: 0.5rem; text-decoration: none; font-size: 1.1rem;
+            font-weight: 500; border: 1px solid #e5e7eb; cursor: not-allowed; position: relative;
         }
-        .coming-soon-badge {
-            position: absolute; top: 50%; right: 1rem; transform: translateY(-50%); background-color: #e0e0e0;
-            color: #707070; font-size: 0.7rem; padding: 0.25rem 0.5rem; border-radius: 1rem; font-weight: normal;
+        .drill-link-disabled .coming-soon-badge { /* Adjusted to match inline style */
+            background-color: #d1d5db; color: #4b5563; font-size: 0.65rem;
+            padding: 0.2rem 0.4rem; border-radius: 0.25rem;
+            position: absolute; top: 0.75rem; right: 0.75rem; transform: none;
         }
-        /* Auth Form Styles */
-        input[type="email"], input[type="password"], input[type="text"].auth-input {
-            width: 100%; padding: 0.875rem; margin-bottom: 1.25rem; border: 1px solid #d1d5db;
-            border-radius: 0.375rem; box-sizing: border-box; font-size: 1rem; transition: border-color 0.2s;
+
+        /* Auth Form Inputs & Buttons */
+        input[type="email"].auth-input, input[type="password"].auth-input, input[type="text"].auth-input {
+            width: 100%; padding: 0.875rem 1rem; margin-bottom: 1.25rem;
+            border: 1px solid #d1d5db; border-radius: 0.375rem; box-sizing: border-box;
+            font-size: 1rem; transition: border-color 0.2s, box-shadow 0.2s;
         }
-        input[type="email"]:focus, input[type="password"]:focus, input[type="text"].auth-input:focus {
-            outline: none; border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4);
+        input[type="email"].auth-input:focus, input[type="password"].auth-input:focus, input[type="text"].auth-input:focus {
+            outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
         }
         .btn {
-            display: flex; align-items: center; justify-content: center; width: 100%;
-            padding: 0.75rem 1.5rem; border: none; border-radius: 0.375rem; cursor: pointer;
-            font-weight: 600; font-size: 0.95rem; transition: background-color 0.2s, box-shadow 0.2s;
-            text-align: center; box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px 0 rgba(0,0,0,0.06);
+            display: inline-flex; align-items: center; justify-content: center; width: 100%;
+            padding: 0.75rem 1.5rem; border: 1px solid transparent; border-radius: 0.375rem;
+            cursor: pointer; font-weight: 600; font-size: 0.95rem;
+            transition: background-color 0.2s, box-shadow 0.2s, border-color 0.2s;
+            text-align: center; box-shadow: 0 1px 3px 0 rgba(0,0,0,0.07), 0 1px 2px 0 rgba(0,0,0,0.04);
         }
         .btn:hover { box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06); }
+        .btn:focus-visible { outline: 2px solid #3b82f6; outline-offset: 2px; }
+
         .btn-primary { background-color: #2563eb; color: white; }
         .btn-primary:hover { background-color: #1d4ed8; }
-        .btn-google { background-color: #ffffff; color: #374151; border: 1px solid #d1d5db; }
-        .btn-google:hover { background-color: #f9fafb; }
+        .btn-google { background-color: #ffffff; color: #374151; border-color: #d1d5db; }
+        .btn-google:hover { background-color: #f9fafb; border-color: #adb5bd;}
         .btn-google img { width: 20px; height: 20px; margin-right: 0.75rem; }
-        .btn-logout { background-color: #ef4444; color: white; padding: 0.5rem 1rem; font-size: 0.875rem; }
-        .btn-logout:hover { background-color: #dc2626; }
+        .btn-logout {
+            background-color: #fee2e2; color: #b91c1c; padding: 0.5rem 1rem; font-size: 0.875rem; font-weight: 500;
+            border: 1px solid #fecaca;
+        }
+        .btn-logout:hover { background-color: #fecaca; color: #991b1b; }
         .auth-toggle-link { color: #2563eb; cursor: pointer; text-decoration: underline; font-size: 0.875rem; }
         .auth-toggle-link:hover { color: #1d4ed8; }
-        .error-message { color: #ef4444; font-size: 0.875rem; min-height: 1.25rem; margin-top: 0.5rem; }
+        .error-message { color: #ef4444; font-size: 0.875rem; min-height: 1.25rem; margin-top: 0.75rem; }
         .hidden { display: none !important; }
-        .welcome-user { font-size: 0.9rem; color: #4b5563;}
+        .welcome-user { font-size: 0.95rem; color: #4b5563;}
+
+        /* Utility for focus rings matching Tailwind's blue */
+        .focus-ring-blue:focus-visible {
+            outline: 2px solid #2563eb;
+            outline-offset: 2px;
+        }
 
     </style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 </head>
 <body>
 
     <div id="auth-section" class="auth-container">
-        <img src="https://ik.imagekit.io/mwp/MWP%20Color%20no%20background.png?updatedAt=1745982959141" alt="MedwithPurpose Logo" class="logo" onerror="this.style.display='none'; this.onerror=null;">
+        <img src="https://ik.imagekit.io/mwp/MWP%20Color%20no%20background.png?updatedAt=1745982959141" alt="MedwithPurpose Logo" class="logo-auth" onerror="this.style.display='none'; this.onerror=null;">
         
         <div id="login-form">
-            <h2 class="text-2xl font-bold text-center mb-6 text-gray-800">Student Login</h2>
+            <h2 class="text-2xl font-bold text-center mb-8 text-gray-800">Student Login</h2>
             <input type="email" id="login-email" placeholder="Email Address" class="auth-input">
             <input type="password" id="login-password" placeholder="Password" class="auth-input">
             <button id="login-button" class="btn btn-primary mb-4">Login</button>
-            <div class="text-center mb-4"><span>OR</span></div>
-            <button id="google-login-button" class="btn btn-google mb-4">
+            <div class="text-center my-4 text-sm text-gray-500">OR</div>
+            <button id="google-login-button" class="btn btn-google mb-6">
                 <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google icon">
                 Sign in with Google
             </button>
             <p class="text-sm text-gray-600">Don't have an account? <a href="#" id="show-signup-link" class="auth-toggle-link">Sign Up</a></p>
-            <p id="login-error" class="error-message text-center mt-3"></p>
+            <p id="login-error" class="error-message text-center mt-4"></p>
         </div>
 
         <div id="signup-form" class="hidden">
-            <h2 class="text-2xl font-bold text-center mb-6 text-gray-800">Create Student Account</h2>
+            <h2 class="text-2xl font-bold text-center mb-8 text-gray-800">Create Student Account</h2>
             <input type="text" id="signup-name" placeholder="Full Name" class="auth-input">
             <input type="email" id="signup-email" placeholder="Email Address" class="auth-input">
             <input type="password" id="signup-password" placeholder="Password (min. 6 characters)" class="auth-input">
             <button id="signup-button" class="btn btn-primary mb-4">Sign Up</button>
-            <div class="text-center mb-4"><span>OR</span></div>
-            <button id="google-signup-button" class="btn btn-google mb-4">
+            <div class="text-center my-4 text-sm text-gray-500">OR</div>
+            <button id="google-signup-button" class="btn btn-google mb-6">
                 <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google icon">
                 Sign up with Google
             </button>
             <p class="text-sm text-gray-600">Already have an account? <a href="#" id="show-login-link" class="auth-toggle-link">Login</a></p>
-            <p id="signup-error" class="error-message text-center mt-3"></p>
+            <p id="signup-error" class="error-message text-center mt-4"></p>
         </div>
     </div>
 
     <div id="dashboard-wrapper" class="dashboard-wrapper hidden">
-        <div class="dashboard-header">
-            <img src="https://ik.imagekit.io/mwp/MWP%20Color%20no%20background.png?updatedAt=1745982959141" alt="MedwithPurpose Logo" class="logo-small" onerror="this.style.display='none'; this.onerror=null;">
+        <header class="dashboard-header">
+            <img src="https://ik.imagekit.io/mwp/MWP%20Color%20no%20background.png?updatedAt=1745982959141" alt="MedwithPurpose Logo" class="logo-dashboard" onerror="this.style.display='none'; this.onerror=null;">
             <div class="flex items-center">
                  <span class="welcome-user mr-4">Welcome, <span id="student-display-name" class="font-semibold">Student</span>!</span>
-                 <button id="logout-button" class="btn-logout">Logout</button>
+                 <button id="logout-button" class="btn-logout focus-ring-blue">Logout</button>
             </div>
+        </header>
+
+        <div class="main-nav-container">
+            <ul class="main-nav" role="tablist" aria-label="Main dashboard navigation">
+                <li class="nav-tab nav-tab-disabled" role="presentation">
+                    <button id="nav-practice" role="tab" aria-selected="false" aria-controls="coming-soon-panel" disabled>Practice <span class="coming-soon-inline">Soon</span></button>
+                </li>
+                <li class="nav-tab tests-dropdown-container" role="presentation">
+                    <button id="nav-tests" role="tab" aria-selected="false" aria-controls="tests-panel" aria-haspopup="true" aria-expanded="false">Tests <span class="text-xs ml-1">&#9662;</span></button>
+                    <div id="tests-dropdown-content" class="tests-dropdown-content" role="menu" aria-labelledby="nav-tests">
+                        <a href="#" id="nav-tests-exams" class="dropdown-item disabled" role="menuitem" aria-disabled="true">Exams <span class="coming-soon-inline">Soon</span></a>
+                        <a href="#" id="nav-tests-vr" class="dropdown-item disabled" role="menuitem" aria-disabled="true">VR <span class="coming-soon-inline">Soon</span></a>
+                        <a href="#" id="nav-tests-dm" class="dropdown-item disabled" role="menuitem" aria-disabled="true">DM <span class="coming-soon-inline">Soon</span></a>
+                        <a href="#" id="nav-tests-qr" class="dropdown-item" role="menuitem">QR</a>
+                        <a href="#" id="nav-tests-sjt" class="dropdown-item disabled" role="menuitem" aria-disabled="true">SJT <span class="coming-soon-inline">Soon</span></a>
+                    </div>
+                </li>
+                <li class="nav-tab nav-tab-disabled" role="presentation">
+                    <button id="nav-skills" role="tab" aria-selected="false" aria-controls="coming-soon-panel" disabled>Skills <span class="coming-soon-inline">Soon</span></button>
+                </li>
+            </ul>
         </div>
 
-        <nav class="main-nav">
-            <div id="nav-practice" class="nav-tab nav-tab-disabled">Practice <span class="coming-soon-inline">(Coming Soon)</span></div>
-            <div class="tests-dropdown-container">
-                <div id="nav-tests" class="nav-tab">Tests</div>
-                <div class="tests-dropdown-content">
-                    <a href="#" id="nav-tests-exams" class="dropdown-item disabled">Exams <span class="coming-soon-inline">(Coming Soon)</span></a>
-                    <a href="#" id="nav-tests-vr" class="dropdown-item disabled">VR <span class="coming-soon-inline">(Coming Soon)</span></a>
-                    <a href="#" id="nav-tests-dm" class="dropdown-item disabled">DM <span class="coming-soon-inline">(Coming Soon)</span></a>
-                    <a href="#" id="nav-tests-qr" class="dropdown-item">QR</a>
-                    <a href="#" id="nav-tests-sjt" class="dropdown-item disabled">SJT <span class="coming-soon-inline">(Coming Soon)</span></a>
-                </div>
-            </div>
-            <div id="nav-skills" class="nav-tab nav-tab-disabled">Skills <span class="coming-soon-inline">(Coming Soon)</span></div>
-        </nav>
-
-        <div id="dashboard-content-area" class="dashboard-content-area">
-            <div id="qr-tests-content" class="hidden">
-                <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6">Quantitative Reasoning Tests</h1>
-                <div class="space-y-3 max-w-md mx-auto">
-                    <a href="QR Test 1.html" class="drill-link">QR Test 1</a>
+        <main id="dashboard-content-area" class="dashboard-content-area">
+            <div id="qr-tests-content" class="hidden" role="tabpanel" aria-labelledby="nav-tests-qr-tab">
+                <h1 class="text-3xl font-bold text-gray-800">Quantitative Reasoning Tests</h1>
+                <div class="space-y-3 max-w-lg mx-auto mt-6"> {/* Slightly wider for test links */}
+                    <a href="QR Test 1.html" class="drill-link focus-ring-blue">QR Test 1</a>
                     <div class="drill-link-disabled">QR Test 2<span class="coming-soon-badge">Coming Soon</span></div>
                     <div class="drill-link-disabled">QR Test 3<span class="coming-soon-badge">Coming Soon</span></div>
                     <div class="drill-link-disabled">QR Test 4<span class="coming-soon-badge">Coming Soon</span></div>
@@ -246,21 +297,21 @@
                     <div class="drill-link-disabled">QR Test 6<span class="coming-soon-badge">Coming Soon</span></div>
                 </div>
             </div>
-            <div id="coming-soon-content" class="hidden">
-                <h2 class="text-xl font-semibold text-gray-700">Coming Soon!</h2>
-                <p class="text-gray-500 mt-2">This section is under development. Please check back later.</p>
+            <div id="coming-soon-panel" class="hidden" role="tabpanel">
+                <h2 class="text-2xl font-semibold text-gray-700">Coming Soon!</h2>
+                <p class="text-gray-500 mt-3">This section is under active development. Please check back later for exciting new content.</p>
             </div>
-             <div id="default-dashboard-message">
-                <h2 class="text-xl font-semibold text-gray-700">Welcome to your Dashboard!</h2>
-                <p class="text-gray-500 mt-2">Select an option from the "Tests" menu to get started.</p>
+             <div id="default-dashboard-message" role="document">
+                <h2 class="text-2xl font-semibold text-gray-700">Welcome to your MedwithPurpose Dashboard!</h2>
+                <p class="text-gray-500 mt-3">Select an option from the "Tests" menu above to begin your UCAT preparation, or explore other sections as they become available.</p>
             </div>
-        </div>
+        </main>
     </div>
 
     <script>
         // --- Firebase Configuration ---
         const firebaseConfig = {
-          apiKey: "AIzaSyASKsaFFTZ-finv2d5egR9K_mZNstEwdns", // Replace with your actual API key
+          apiKey: "YOUR_API_KEY", // Replace with your actual API key from Firebase Console
           authDomain: "mwp-qr-test-page.firebaseapp.com",
           projectId: "mwp-qr-test-page",
           storageBucket: "mwp-qr-test-page.appspot.com",
@@ -270,7 +321,9 @@
         };
 
         // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
+        if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
         const auth = firebase.auth();
 
         // --- DOM Elements ---
@@ -299,21 +352,22 @@
         const logoutButton = document.getElementById('logout-button');
 
         // New Nav Elements
-        const navPractice = document.getElementById('nav-practice');
-        const navTests = document.getElementById('nav-tests');
-        const navSkills = document.getElementById('nav-skills');
-        const navTestsExams = document.getElementById('nav-tests-exams');
-        const navTestsVR = document.getElementById('nav-tests-vr');
-        const navTestsDM = document.getElementById('nav-tests-dm');
-        const navTestsQR = document.getElementById('nav-tests-qr');
-        const navTestsSJT = document.getElementById('nav-tests-sjt');
+        const navPracticeBtn = document.getElementById('nav-practice');
+        const navTestsBtn = document.getElementById('nav-tests'); // This is the button for Tests tab
+        const navSkillsBtn = document.getElementById('nav-skills');
+        const testsDropdownContent = document.getElementById('tests-dropdown-content');
+
+        const navTestsExamsLink = document.getElementById('nav-tests-exams');
+        const navTestsVRLink = document.getElementById('nav-tests-vr');
+        const navTestsDMLink = document.getElementById('nav-tests-dm');
+        const navTestsQRLink = document.getElementById('nav-tests-qr');
+        const navTestsSJTLink = document.getElementById('nav-tests-sjt');
 
         // Content Area Elements
         const qrTestsContent = document.getElementById('qr-tests-content');
-        const comingSoonContent = document.getElementById('coming-soon-content');
+        const comingSoonPanel = document.getElementById('coming-soon-panel');
         const defaultDashboardMessage = document.getElementById('default-dashboard-message');
-        const allNavTabs = document.querySelectorAll('.nav-tab');
-        const dashboardContentArea = document.getElementById('dashboard-content-area');
+        const allNavTabButtons = document.querySelectorAll('.main-nav button[role="tab"]');
 
 
         // --- UI Toggle (Login/Signup Forms) ---
@@ -321,16 +375,14 @@
             e.preventDefault();
             loginForm.classList.add('hidden');
             signupForm.classList.remove('hidden');
-            loginErrorP.textContent = '';
-            signupErrorP.textContent = '';
+            loginErrorP.textContent = ''; signupErrorP.textContent = '';
         });
 
         showLoginLink.addEventListener('click', (e) => {
             e.preventDefault();
             signupForm.classList.add('hidden');
             loginForm.classList.remove('hidden');
-            loginErrorP.textContent = '';
-            signupErrorP.textContent = '';
+            loginErrorP.textContent = ''; signupErrorP.textContent = '';
         });
 
         // --- Authentication Logic ---
@@ -339,109 +391,113 @@
             const email = signupEmailInput.value;
             const password = signupPasswordInput.value;
             signupErrorP.textContent = '';
-
-            if (name === '') {
-                signupErrorP.textContent = 'Please enter your name.';
-                return;
-            }
-            if (password.length < 6) {
-                signupErrorP.textContent = 'Password should be at least 6 characters.';
-                return;
-            }
-
+            if (name === '') { signupErrorP.textContent = 'Please enter your name.'; return; }
+            if (password.length < 6) { signupErrorP.textContent = 'Password should be at least 6 characters.'; return; }
             auth.createUserWithEmailAndPassword(email, password)
-                .then((userCredential) => {
-                    return userCredential.user.updateProfile({
-                        displayName: name
-                    });
-                })
-                .then(() => {
-                    // onAuthStateChanged will handle UI update
-                })
-                .catch((error) => {
-                    signupErrorP.textContent = error.message;
-                });
+                .then(userCredential => userCredential.user.updateProfile({ displayName: name }))
+                .catch(error => signupErrorP.textContent = error.message);
         });
 
         loginButton.addEventListener('click', () => {
-            const email = loginEmailInput.value;
-            const password = loginPasswordInput.value;
-            loginErrorP.textContent = '';
-
-            auth.signInWithEmailAndPassword(email, password)
-                .catch((error) => {
-                    loginErrorP.textContent = error.message;
-                });
+            auth.signInWithEmailAndPassword(loginEmailInput.value, loginPasswordInput.value)
+                .catch(error => loginErrorP.textContent = error.message);
         });
 
         function handleGoogleSignIn() {
             const provider = new firebase.auth.GoogleAuthProvider();
-            loginErrorP.textContent = '';
-            signupErrorP.textContent = '';
-
-            auth.signInWithPopup(provider)
-                .catch((error) => {
-                    loginErrorP.textContent = error.message;
-                    signupErrorP.textContent = error.message;
-                });
+            loginErrorP.textContent = ''; signupErrorP.textContent = '';
+            auth.signInWithPopup(provider).catch(error => {
+                loginErrorP.textContent = error.message; signupErrorP.textContent = error.message;
+            });
         }
         googleLoginButton.addEventListener('click', handleGoogleSignIn);
         googleSignupButton.addEventListener('click', handleGoogleSignIn);
 
-        logoutButton.addEventListener('click', () => {
-            auth.signOut().catch((error) => {
-                console.error("Student logout error:", error);
+        logoutButton.addEventListener('click', () => auth.signOut().catch(console.error));
+
+        // --- Content Display & Navigation Logic ---
+        function showContent(contentElementToShow) {
+            [qrTestsContent, comingSoonPanel, defaultDashboardMessage].forEach(el => el.classList.add('hidden'));
+            if (contentElementToShow) {
+                contentElementToShow.classList.remove('hidden');
+            }
+        }
+        
+        function setActiveTab(selectedButton) {
+            allNavTabButtons.forEach(button => {
+                button.classList.remove('active');
+                button.setAttribute('aria-selected', 'false');
             });
-        });
+            if (selectedButton) {
+                selectedButton.classList.add('active');
+                selectedButton.setAttribute('aria-selected', 'true');
+            }
+        }
 
-        // --- Content Display Logic ---
-        function showContent(contentId) {
-            qrTestsContent.classList.add('hidden');
-            comingSoonContent.classList.add('hidden');
-            defaultDashboardMessage.classList.add('hidden');
-
-            if (contentId === 'qr') {
-                qrTestsContent.classList.remove('hidden');
-            } else if (contentId === 'comingsoon') {
-                comingSoonContent.classList.remove('hidden');
+        function toggleTestsDropdown(show) {
+            if (show) {
+                testsDropdownContent.style.display = 'block';
+                navTestsBtn.setAttribute('aria-expanded', 'true');
             } else {
-                defaultDashboardMessage.classList.remove('hidden');
-            }
-        }
-        
-        function setActiveTab(selectedTab) {
-            allNavTabs.forEach(tab => tab.classList.remove('active'));
-            if (selectedTab) {
-                selectedTab.classList.add('active');
+                testsDropdownContent.style.display = 'none';
+                navTestsBtn.setAttribute('aria-expanded', 'false');
             }
         }
 
-        // --- New Navigation Event Listeners ---
-        navPractice.addEventListener('click', () => {
-            showContent('comingsoon');
-            setActiveTab(navPractice);
+        // Event listeners for main tabs
+        navPracticeBtn.addEventListener('click', () => {
+            showContent(comingSoonPanel);
+            setActiveTab(navPracticeBtn);
+            toggleTestsDropdown(false);
         });
 
-        navTestsQR.addEventListener('click', (e) => {
-            e.preventDefault(); // Prevent default anchor behavior
-            showContent('qr');
-            setActiveTab(navTests); // Highlight the main "Tests" tab
-            // Close dropdown if it was open (optional, hover usually handles this)
-            // navTests.querySelector('.tests-dropdown-content').style.display = 'none'; 
+        navSkillsBtn.addEventListener('click', () => {
+            showContent(comingSoonPanel);
+            setActiveTab(navSkillsBtn);
+            toggleTestsDropdown(false);
         });
 
-        // For other "Coming Soon" test types under "Tests"
-        [navTestsExams, navTestsVR, navTestsDM, navTestsSJT].forEach(item => {
-            item.addEventListener('click', (e) => {
+        // Tests Tab (Dropdown Toggle)
+        navTestsBtn.addEventListener('click', (event) => {
+            event.stopPropagation(); // Prevent click from closing dropdown immediately if event bubbles to document
+            const isExpanded = navTestsBtn.getAttribute('aria-expanded') === 'true';
+            toggleTestsDropdown(!isExpanded);
+             // Don't set active tab or change content here, let dropdown items do it
+        });
+
+        // Event listeners for dropdown items
+        navTestsQRLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            showContent(qrTestsContent);
+            setActiveTab(navTestsBtn); // Keep "Tests" tab active
+            toggleTestsDropdown(false);
+            qrTestsContent.setAttribute('aria-labelledby', 'nav-tests-qr');
+        });
+
+        [navTestsExamsLink, navTestsVRLink, navTestsDMLink, navTestsSJTLink].forEach(link => {
+            link.addEventListener('click', (e) => {
                 e.preventDefault();
-                showContent('comingsoon');
-                setActiveTab(navTests);
+                if (!link.classList.contains('disabled')) { // Should be disabled via HTML/CSS but good check
+                    showContent(comingSoonPanel);
+                    setActiveTab(navTestsBtn);
+                    toggleTestsDropdown(false);
+                    comingSoonPanel.setAttribute('aria-labelledby', link.id.replace('-link', '-tab')); // For ARIA
+                }
             });
         });
         
-        navSkills.addEventListener('click', () => {
-            showContent('comingsoon');
-            setActiveTab(navSkills);
+        // Close dropdown if clicked outside
+        document.addEventListener('click', (event) => {
+            if (!navTestsBtn.contains(event.target) && !testsDropdownContent.contains(event.target)) {
+                toggleTestsDropdown(false);
+            }
+        });
+        // Close dropdown with Escape key
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && navTestsBtn.getAttribute('aria-expanded') === 'true') {
+                toggleTestsDropdown(false);
+                navTestsBtn.focus(); // Return focus to the tests button
+            }
         });
 
 
@@ -452,28 +508,20 @@
                 authSection.classList.add('hidden');
                 dashboardWrapper.classList.remove('hidden');
                 localStorage.setItem('qrStudentName', user.displayName || user.email || '');
-                showContent('default'); // Show default message on login
-                setActiveTab(null); // No tab active by default
+                showContent(defaultDashboardMessage);
+                setActiveTab(null);
+                toggleTestsDropdown(false); // Ensure dropdown is closed on login
             } else {
                 authSection.classList.remove('hidden');
                 dashboardWrapper.classList.add('hidden');
                 localStorage.removeItem('qrStudentName');
-                 // Reset forms
-                loginEmailInput.value = '';
-                loginPasswordInput.value = '';
-                signupNameInput.value = '';
-                signupEmailInput.value = '';
-                signupPasswordInput.value = '';
-                loginErrorP.textContent = '';
-                signupErrorP.textContent = '';
-
+                [loginEmailInput, loginPasswordInput, signupNameInput, signupEmailInput, signupPasswordInput].forEach(input => input.value = '');
+                [loginErrorP, signupErrorP].forEach(p => p.textContent = '');
             }
         });
 
-        // Initialize: show default message or QR tests if a sub-item was clicked
-        // This could be enhanced if you want to remember the last selected tab via localStorage
-        showContent('default'); 
-
+        // Initial state
+        showContent(defaultDashboardMessage); 
     </script>
 </body>
 </html>
