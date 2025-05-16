@@ -7,6 +7,9 @@
     <link rel="icon" href="https://ik.imagekit.io/mwp/2.svg?updatedAt=1745982956185" type="image/svg+xml">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- Firebase SDK -->
+    <script defer src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <style>
         /* Custom styles for better UI/UX */
         html, body {
@@ -549,6 +552,7 @@
               <div class="mt-6 text-center flex-shrink-0 flex flex-col sm:flex-row justify-center items-center space-y-3 sm:space-y-0 sm:space-x-4">
                 <button onclick="window.location.href='student_dashboard.html'" class="secondary-button px-6 py-2 w-full sm:w-auto">Return to Dashboard</button>
                 <button onclick="window.location.reload()" class="secondary-button px-6 py-2 w-full sm:w-auto">Try Again</button>
+                <button id="submit-performance-button" class="primary-button px-6 py-2 w-full sm:w-auto">Submit Performance to Admin</button>
                 <button id="download-pdf-button" class="primary-button px-6 py-2 w-full sm:w-auto">Download Results PDF</button>
             </div>
         </div>
@@ -566,6 +570,21 @@
     </div>
 
     <script>
+        // --- Firebase Configuration ---
+        const firebaseConfig = {
+          apiKey: "AIzaSyASKsaFFTZ-finv2d5egR9K_mZNstEwdns",
+          authDomain: "mwp-qr-test-page.firebaseapp.com",
+          projectId: "mwp-qr-test-page",
+          storageBucket: "mwp-qr-test-page.appspot.com", // Corrected from firebasestorage.app to appspot.com for compatibility with firestore
+          messagingSenderId: "309084045110",
+          appId: "1:309084045110:web:b09ca0fdff84b094963d97",
+          measurementId: "G-4M3ED641M9"
+        };
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore(); // Initialize Firestore
+        // You can initialize analytics if needed: const analytics = firebase.analytics();
+
         // --- Data ---
         const passages = [
             `The table shows the fees for different membership types and activities at a fitness centre.
@@ -1157,6 +1176,14 @@ For example: an event with Catering Beta for 15 guests requiring 2.5 hours of se
             totalQuestionsResultsEl.textContent = questions.length;
             const timeDiff = practiceSessionEndTime - practiceSessionStartTime;
             timeTakenEl.textContent = formatTimeDifference(timeDiff);
+            
+            // Make sure the submit performance button has an event listener
+            const submitButton = document.getElementById('submit-performance-button');
+            if (submitButton) {
+                submitButton.disabled = false;
+                submitButton.textContent = 'Submit Performance to Admin';
+                submitButton.classList.remove('bg-green-500');
+            }
         }
 
 
@@ -1231,6 +1258,45 @@ For example: an event with Catering Beta for 15 guests requiring 2.5 hours of se
                 y += textLines.length * (lineHeight * 0.7) + (lineHeight*0.3);
             });
             doc.save(`ucat_qr_results_${userName || 'user'}.pdf`);
+        }
+        
+        // Function to submit performance data to server
+        async function submitPerformanceData() {
+            const performanceData = {
+                studentName: userName || 'Anonymous',
+                examName: "QR Test 1", // You can make this dynamic if needed
+                score: scoreEl.textContent,
+                totalQuestions: totalQuestionsResultsEl.textContent,
+                timeTaken: timeTakenEl.textContent,
+                answers: userAnswers,
+                questionTimes: questionTimes, // Time in milliseconds for each question
+                flaggedQuestions: flaggedQuestions,
+                goal: userGoal || '',
+                focusArea: userFocusArea || '',
+                focusRating: document.getElementById('focus-rating').value || '',
+                reflection: document.getElementById('reflection-text').value || '',
+                submissionTimestamp: new Date().toISOString(),
+                userAgent: navigator.userAgent // Optional: capture user agent for context
+            };
+
+            try {
+                // Ensure Firebase is initialized and db is available
+                if (typeof firebase !== 'undefined' && firebase.firestore) {
+                    const db = firebase.firestore();
+                    await db.collection("performanceSubmissions").add(performanceData);
+                    
+                    alert('Performance submitted successfully!');
+                    document.getElementById('submit-performance-button').disabled = true;
+                    document.getElementById('submit-performance-button').textContent = 'Submitted';
+                    document.getElementById('submit-performance-button').classList.add('bg-green-500'); // Green background on success
+                } else {
+                    alert('Firebase is not initialized. Please configure Firebase first.');
+                    console.error('Firebase or Firestore is not available.');
+                }
+            } catch (error) {
+                console.error('Error submitting performance to Firebase:', error);
+                alert('An error occurred while submitting. Please check console or try again.');
+            }
         }
         
         // --- Calculator Functions ---
@@ -1593,6 +1659,7 @@ For example: an event with Catering Beta for 15 guests requiring 2.5 hours of se
         flagButton.addEventListener('click', toggleFlag);
         filterFlaggedButton.addEventListener('click', () => { isFilteringFlagged = !isFilteringFlagged; showReviewScreen(isFilteringFlagged); });
         downloadPdfButton.addEventListener('click', generatePDF);
+        document.getElementById('submit-performance-button').addEventListener('click', submitPerformanceData);
 
         calculatorToggleButton.addEventListener('click', toggleCalculator);
         closeCalculatorButton.addEventListener('click', toggleCalculator);
