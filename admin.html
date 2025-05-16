@@ -54,7 +54,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-</head>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    </head>
 <body>
     <div class="container">
         <h1>Student Performance Dashboard</h1>
@@ -64,8 +67,6 @@
             </div>
     </div>
 
-    <script defer src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script defer src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script>
         // --- Firebase Configuration ---
         // IMPORTANT: Ensure these values are correct for your mwp-qr-test-page project
@@ -87,17 +88,20 @@
         const performanceTableContainer = document.getElementById('performance-table-container');
 
         async function fetchPerformanceData() {
+            console.log("Attempting to fetch performance data..."); // For debugging
             try {
-                // Fetch data from the "performanceSubmissions" collection,
-                // ordering by submissionTimestamp in descending order (newest first)
                 const snapshot = await db.collection("performanceSubmissions")
                                          .orderBy("submissionTimestamp", "desc")
                                          .get();
+                console.log("Snapshot received:", snapshot); // For debugging
+                console.log("Is snapshot empty?", snapshot.empty); // For debugging
 
                 if (snapshot.empty) {
+                    console.log("No documents found in snapshot."); // For debugging
                     performanceTableContainer.innerHTML = "<p class=\"text-center text-gray-600\">No performance data found.</p>";
                     return;
                 }
+                console.log("Snapshot contains documents. Building table..."); // For debugging
 
                 let tableHTML = `
                     <div class="overflow-x-auto"> <table class="min-w-full">
@@ -127,10 +131,10 @@
                     const totalQuestionsText = data.totalQuestions !== undefined ? data.totalQuestions.toString() : 'N/A';
 
                     // Convert answers array to a readable string, or show N/A
-                    let answersString = 'N/A';
-                    if (data.answers && Array.isArray(data.answers)) {
-                        answersString = data.answers.map((ans, index) => `Q${index+1}: ${ans || '-'}`).join(', ');
-                    }
+                    // let answersString = 'N/A';
+                    // if (data.answers && Array.isArray(data.answers)) {
+                    //     answersString = data.answers.map((ans, index) => `Q${index+1}: ${ans || '-'}`).join('; ');
+                    // }
 
                     tableHTML += `
                         <tr>
@@ -155,9 +159,10 @@
                     </div>
                 `;
                 performanceTableContainer.innerHTML = tableHTML;
+                console.log("Table HTML should now be on page."); // For debugging
 
             } catch (error) {
-                console.error("Error fetching performance data from Firestore: ", error);
+                console.error("Error in fetchPerformanceData:", error); // Ensure this logs
                 performanceTableContainer.innerHTML = "<p class=\"text-center text-red-600\">Error loading data. Check the console. Make sure your Firestore security rules allow read access.</p>";
             }
         }
