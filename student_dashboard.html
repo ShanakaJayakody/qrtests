@@ -594,6 +594,10 @@
                 </span>
             </div>
             
+            <div class="text-right mb-4">
+                <a href="#" id="forgot-password-link" class="text-sm text-blue-500 hover:text-blue-700 transition-colors">Forgot Password?</a>
+            </div>
+            
             <button id="login-button" class="btn btn-primary mb-4">
                 <span id="login-spinner" class="spinner hidden"></span>
                 <span>Login</span>
@@ -1015,6 +1019,44 @@
 
         googleLoginButton.addEventListener('click', handleGoogleSignIn);
         googleSignupButton.addEventListener('click', handleGoogleSignIn);
+
+        // Password Reset Handler
+        const forgotPasswordLink = document.getElementById('forgot-password-link');
+        forgotPasswordLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            
+            // Get the email from the login form
+            const email = loginEmailInput.value.trim();
+            
+            // Password reset modal
+            const resetEmail = prompt('Please enter your email address to receive a password reset link:', email);
+            
+            if (resetEmail) {
+                // Clear error message
+                loginErrorP.textContent = '';
+                
+                // Show loading state
+                setButtonLoading(loginButton, loginSpinner, true);
+                
+                // Send password reset email
+                firebase.auth().sendPasswordResetEmail(resetEmail)
+                    .then(() => {
+                        // Show success message
+                        showErrorMessage(loginErrorP, 'Password reset email sent! Please check your inbox.');
+                        // Change text color to green for success message
+                        loginErrorP.style.color = 'var(--color-success)';
+                    })
+                    .catch((error) => {
+                        // Show error message
+                        showErrorMessage(loginErrorP, error.message);
+                        loginErrorP.style.color = 'var(--color-danger)';
+                    })
+                    .finally(() => {
+                        // Reset loading state
+                        setButtonLoading(loginButton, loginSpinner, false);
+                    });
+            }
+        });
 
         logoutButton.addEventListener('click', () => {
             // Confirm logout
