@@ -6,135 +6,316 @@
     <title>Admin - Performance Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Basic styling for readability */
-        body {
-            font-family: 'Inter', sans-serif;
-            margin: 20px;
-            background-color: #f0f4f8;
-            color: #333;
+        /* Base styles for body and main containers */
+        body { 
+            font-family: 'Inter', sans-serif; 
+            margin: 0; 
+            background-color: #f0f4f8; /* Light grayish blue */
+            color: #1f2937; /* Darker gray for text */
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            padding-top: 2rem; /* Space from top */
+            min-height: 100vh; 
         }
-        .container {
-            background-color: #ffffff;
-            padding: 2rem;
-            border-radius: 0.75rem;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            max-width: 1200px; /* Adjusted for potentially wide table */
-            margin: 2rem auto;
+        .container { 
+            background-color: #ffffff; 
+            padding: 2rem; 
+            border-radius: 0.75rem; /* Softer corners */
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); /* Softer shadow */
+            width: 100%; 
+            max-width: 1200px; 
+            margin: 1rem; 
         }
-        table {
+        .login-container { 
+            max-width: 400px; 
+            margin: 2rem auto; 
+            padding: 2.5rem; /* More padding */
+            background-color: #fff; 
+            border-radius: 0.5rem; 
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1); 
+        }
+
+        /* Input field styling */
+        input[type="email"], input[type="password"] { 
+            width: 100%; 
+            padding: 0.875rem; /* Slightly more padding */
+            margin-bottom: 1.25rem; 
+            border: 1px solid #d1d5db; /* Tailwind gray-300 */
+            border-radius: 0.375rem; 
+            box-sizing: border-box; 
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+        input[type="email"]:focus, input[type="password"]:focus {
+            outline: none;
+            border-color: #3b82f6; /* Tailwind blue-500 */
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4);
+        }
+
+        /* General button styling */
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
             width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 10px;
-            text-align: left;
-            font-size: 0.9rem;
-        }
-        th {
-            background-color: #e2f0ff;
-            color: #0056b3;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.375rem;
+            cursor: pointer;
             font-weight: 600;
-        }
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-        h1 {
-            color: #0056b3;
+            font-size: 0.95rem;
+            transition: background-color 0.2s, box-shadow 0.2s;
             text-align: center;
-            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
         }
-        /* Ensure word wrap for long text in table cells */
-        td {
-            word-break: break-word;
-            white-space: pre-wrap; /* To respect newlines in reflection text */
+        .btn:hover {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
+
+        /* Email login button */
+        .btn-email {
+            background-color: #2563eb; /* Tailwind blue-600 */
+            color: white;
+            margin-bottom: 0.75rem; /* Space before OR divider */
+        }
+        .btn-email:hover {
+            background-color: #1d4ed8; /* Tailwind blue-700 */
+        }
+
+        /* Google login button */
+        .btn-google {
+            background-color: #ffffff;
+            color: #374151; /* Tailwind gray-700 */
+            border: 1px solid #d1d5db; /* Tailwind gray-300 */
+            margin-top: 0.75rem; /* Space after OR divider */
+        }
+        .btn-google:hover {
+            background-color: #f9fafb; /* Tailwind gray-50 */
+        }
+        .btn-google img { /* For Google icon */
+            width: 20px;
+            height: 20px;
+            margin-right: 0.75rem;
+        }
+
+
+        .btn-logout { 
+            background-color: #ef4444; /* Tailwind red-500 */
+            color: white;
+        }
+        .btn-logout:hover { 
+            background-color: #dc2626; /* Tailwind red-600 */
+        }
+
+        /* Table and other dashboard styles */
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #e5e7eb; padding: 10px; text-align: left; font-size: 0.9rem; }
+        th { background-color: #f3f4f6; color: #374151; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;}
+        tr:nth-child(even) { background-color: #f9fafb; }
+        h1 { color: #111827; text-align: center; margin-bottom: 1.5rem; font-size: 1.75rem; font-weight: 700; }
+        h2 { color: #1f2937; }
+        td { word-break: break-word; white-space: pre-wrap; }
+        .hidden { display: none !important; }
+        #admin-controls { text-align: right; margin-bottom: 1rem; display: flex; justify-content: flex-end; align-items: center; }
+        .social-login-divider { 
+            display: flex; 
+            align-items: center; 
+            text-align: center; 
+            color: #6b7280; /* Tailwind gray-500 */
+            margin: 1.5rem 0; /* Increased margin */
+        }
+        .social-login-divider::before,
+        .social-login-divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid #e5e7eb; /* Tailwind gray-200 */
+        }
+        .social-login-divider span { 
+            padding: 0 1rem; /* More padding for OR text */
+            font-size: 0.875rem;
+        }
+        #login-error {
+            min-height: 1.25rem; /* Reserve space for error message */
+        }
+
     </style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    </head>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+</head>
 <body>
-    <div class="container">
-        <h1>Student Performance Dashboard</h1>
+    <div id="login-section" class="login-container">
+        <h2 class="text-2xl font-bold text-center mb-8 text-gray-800">Admin Portal</h2>
+        <input type="email" id="admin-email" placeholder="Email Address">
+        <input type="password" id="admin-password" placeholder="Password">
+        <button id="admin-login-button" class="btn btn-email">Login with Email</button>
+        
+        <div class="social-login-divider"><span>OR</span></div>
 
+        <button id="google-login-button" class="btn btn-google">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google icon">
+            Sign in with Google
+        </button>
+        <p id="login-error" class="text-red-600 text-sm mt-4 text-center"></p>
+    </div>
+
+    <div id="dashboard-section" class="container hidden">
+        <div id="admin-controls">
+            <span id="admin-user-email" class="text-gray-700 mr-4"></span>
+            <button id="admin-logout-button" class="btn btn-logout text-sm px-4 py-2">Logout</button>
+        </div>
+        <h1>Student Performance Dashboard</h1>
         <div id="performance-table-container">
             <p>Loading performance data...</p>
-            </div>
+        </div>
     </div>
 
     <script>
         // --- Firebase Configuration ---
-        // IMPORTANT: Ensure these values are correct for your mwp-qr-test-page project
         const firebaseConfig = {
-          apiKey: "AIzaSyASKsaFFTZ-finv2d5egR9K_mZNstEwdns", // From your QR Test 1.html
+          apiKey: "AIzaSyASKsaFFTZ-finv2d5egR9K_mZNstEwdns",
           authDomain: "mwp-qr-test-page.firebaseapp.com",
           projectId: "mwp-qr-test-page",
           storageBucket: "mwp-qr-test-page.appspot.com",
-          messagingSenderId: "309084045110", // From your QR Test 1.html
-          appId: "1:309084045110:web:b09ca0fdff84b094963d97", // From your QR Test 1.html
-          measurementId: "G-4M3ED641M9" // From your QR Test 1.html
+          messagingSenderId: "309084045110",
+          appId: "1:309084045110:web:b09ca0fdff84b094963d97",
+          measurementId: "G-4M3ED641M9"
         };
 
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore(); // Initialize Firestore
+        const db = firebase.firestore();
+        const auth = firebase.auth();
 
-        // --- JavaScript to fetch and display data ---
+        // --- DOM Elements ---
+        const loginSection = document.getElementById('login-section');
+        const dashboardSection = document.getElementById('dashboard-section');
+        const adminLoginButton = document.getElementById('admin-login-button');
+        const adminEmailInput = document.getElementById('admin-email');
+        const adminPasswordInput = document.getElementById('admin-password');
+        const loginErrorP = document.getElementById('login-error');
         const performanceTableContainer = document.getElementById('performance-table-container');
+        const adminLogoutButton = document.getElementById('admin-logout-button');
+        const adminUserEmailSpan = document.getElementById('admin-user-email');
+        const googleLoginButton = document.getElementById('google-login-button');
+        // const microsoftLoginButton = document.getElementById('microsoft-login-button'); // Removed
 
+        // --- Authentication Logic ---
+
+        // Email/Password Login
+        if(adminLoginButton) { // Check if element exists
+            adminLoginButton.addEventListener('click', () => {
+                const email = adminEmailInput.value;
+                const password = adminPasswordInput.value;
+                loginErrorP.textContent = ''; 
+
+                auth.signInWithEmailAndPassword(email, password)
+                    .catch((error) => {
+                        console.error("Admin Email/Pass login error:", error);
+                        loginErrorP.textContent = error.message;
+                    });
+            });
+        }
+
+
+        // Google Sign-In
+        if (googleLoginButton) {
+            googleLoginButton.addEventListener('click', () => {
+                const provider = new firebase.auth.GoogleAuthProvider();
+                loginErrorP.textContent = '';
+                auth.signInWithPopup(provider)
+                    .catch((error) => {
+                        console.error("Google Sign-In Error:", error);
+                        loginErrorP.textContent = `Google Sign-In Error: ${error.message}`;
+                    });
+            });
+        }
+
+        // Microsoft Sign-In (Removed logic as per your request)
+        // if (microsoftLoginButton) { ... } 
+
+        // Logout
+        if (adminLogoutButton) {
+            adminLogoutButton.addEventListener('click', () => {
+                auth.signOut().catch((error) => {
+                    console.error("Admin logout error:", error);
+                });
+            });
+        }
+
+
+        // Auth State Change Listener
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                console.log("Auth state changed: User is signed in.", user.uid);
+                if(adminUserEmailSpan) adminUserEmailSpan.textContent = `Logged in as: ${user.email || user.displayName || 'Admin'}`;
+                if(loginSection) loginSection.classList.add('hidden');
+                if(dashboardSection) dashboardSection.classList.remove('hidden');
+                fetchPerformanceData(); 
+            } else {
+                console.log("Auth state changed: User is signed out.");
+                if(adminUserEmailSpan) adminUserEmailSpan.textContent = '';
+                if(loginSection) loginSection.classList.remove('hidden');
+                if(dashboardSection) dashboardSection.classList.add('hidden');
+                if(performanceTableContainer) performanceTableContainer.innerHTML = '<p class="text-center text-gray-500">Please log in to view data.</p>';
+            }
+        });
+
+
+        // --- Firestore Data Fetching Logic ---
         async function fetchPerformanceData() {
-            console.log("Attempting to fetch performance data..."); // For debugging
+            if (!auth.currentUser) { // Don't fetch if no user is logged in
+                console.log("FetchPerformanceData called, but no user is logged in.");
+                performanceTableContainer.innerHTML = '<p class="text-center text-gray-500">Please log in to view data.</p>';
+                return;
+            }
+
+            console.log("Attempting to fetch performance data (user authenticated)...");
+            performanceTableContainer.innerHTML = '<p class="text-center text-gray-500">Loading performance data...</p>';
             try {
                 const snapshot = await db.collection("performanceSubmissions")
                                          .orderBy("submissionTimestamp", "desc")
                                          .get();
-                console.log("Snapshot received:", snapshot); // For debugging
-                console.log("Is snapshot empty?", snapshot.empty); // For debugging
+                console.log("Snapshot received:", snapshot);
+                console.log("Is snapshot empty?", snapshot.empty);
 
                 if (snapshot.empty) {
-                    console.log("No documents found in snapshot."); // For debugging
+                    console.log("No documents found in snapshot.");
                     performanceTableContainer.innerHTML = "<p class=\"text-center text-gray-600\">No performance data found.</p>";
                     return;
                 }
-                console.log("Snapshot contains documents. Building table..."); // For debugging
+                console.log("Snapshot contains documents. Building table...");
 
                 let tableHTML = `
-                    <div class="overflow-x-auto"> <table class="min-w-full">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full">
                             <thead>
                                 <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Submission Time</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student Name</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Exam Name</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Score</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Qs</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time Taken</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Goal</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Focus Area</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Focus Rating</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reflection</th>
-                                    </tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Submission Time</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Student Name</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Exam Name</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Score</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Total Qs</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Time Taken</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Goal</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Focus Area</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Focus Rating</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Reflection</th>
+                                </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
                 `;
 
                 snapshot.forEach(doc => {
-                    const data = doc.data(); // This is one student's performance record
-
-                    // Format the timestamp for better readability
+                    const data = doc.data();
                     const submissionDate = data.submissionTimestamp ? new Date(data.submissionTimestamp).toLocaleString() : 'N/A';
                     const scoreText = data.score !== undefined ? data.score.toString() : 'N/A';
                     const totalQuestionsText = data.totalQuestions !== undefined ? data.totalQuestions.toString() : 'N/A';
-
-                    // Convert answers array to a readable string, or show N/A
-                    // let answersString = 'N/A';
-                    // if (data.answers && Array.isArray(data.answers)) {
-                    //     answersString = data.answers.map((ans, index) => `Q${index+1}: ${ans || '-'}`).join('; ');
-                    // }
 
                     tableHTML += `
                         <tr>
@@ -148,7 +329,6 @@
                             <td class="px-6 py-4">${data.focusArea || 'N/A'}</td>
                             <td class="px-6 py-4">${data.focusRating || 'N/A'}</td>
                             <td class="px-6 py-4">${data.reflection || 'N/A'}</td>
-                            {/* Example for displaying answers: <td class="px-6 py-4">${answersString}</td> */}
                         </tr>
                     `;
                 });
@@ -159,16 +339,13 @@
                     </div>
                 `;
                 performanceTableContainer.innerHTML = tableHTML;
-                console.log("Table HTML should now be on page."); // For debugging
+                console.log("Table HTML should now be on page.");
 
             } catch (error) {
-                console.error("Error in fetchPerformanceData:", error); // Ensure this logs
-                performanceTableContainer.innerHTML = "<p class=\"text-center text-red-600\">Error loading data. Check the console. Make sure your Firestore security rules allow read access.</p>";
+                console.error("Error in fetchPerformanceData:", error);
+                performanceTableContainer.innerHTML = "<p class=\"text-center text-red-600\">Error loading data. This could be due to insufficient permissions or a network issue. Check the console.</p>";
             }
         }
-
-        // Call the function to fetch and display data when the page loads
-        fetchPerformanceData();
     </script>
 </body>
 </html>
