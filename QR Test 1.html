@@ -412,7 +412,7 @@
         <div id="setup-screen" class="p-6 md:p-8 flex flex-col justify-center items-center h-full">
              <div class="text-center mb-6">
                 <img src="https://ik.imagekit.io/mwp/MWP%20Color%20no%20background.png?updatedAt=1745982959141"
-                     alt="MedwithPurpose Logo" class="mx-auto h-14 w-auto mb-4" onerror="this.style.display='none'; this.onerror=null;">
+                     alt="MedwithPurpose Logo" class="mx-auto h-15.4 w-auto mb-4" onerror="this.style.display='none'; this.onerror=null;">
                 <h1 class="text-2xl md:text-3xl font-bold text-blue-600">Quantitative Reasoning Test 1</h1>
                 <p class="text-gray-600 mt-2">Prepare for the UCAT QR section.</p>
                  <p class="text-sm text-gray-500 mt-4">
@@ -522,14 +522,14 @@
              <p class="text-center text-gray-600 mb-6">Click on a question number to review it. Green indicates answered, Yellow border indicates flagged.</p>
             <div id="review-grid" class="grid grid-cols-4 gap-3 mb-6 w-full max-w-xs sm:max-w-sm md:max-w-md"></div>
             <div class="mt-auto pt-6">
-                <button id="end-practice-session-button" class="danger-button text-lg px-8 py-3">See Results</button>
+                <button id="end-practice-session-button" class="danger-button text-lg px-8 py-3">Submit</button>
             </div>
         </div>
 
         <div id="results-screen" class="hidden p-6 md:p-8 flex flex-col h-full">
              <div class="text-center mb-6 flex-shrink-0">
                 <img src="https://ik.imagekit.io/mwp/MWP%20Color%20no%20background.png?updatedAt=1745982959141"
-                     alt="MedwithPurpose Logo" class="mx-auto h-9 w-auto mb-4" onerror="this.style.display='none'; this.onerror=null;">
+                     alt="MedwithPurpose Logo" class="mx-auto h-10 w-auto mb-4" onerror="this.style.display='none'; this.onerror=null;">
                  <h2 class="text-2xl md:text-3xl font-bold text-blue-600">Practice Session Results</h2>
              </div>
             <div class="bg-blue-50 p-4 rounded-lg mb-6 text-center flex-shrink-0">
@@ -541,7 +541,7 @@
             <div id="results-details-grid" class="overflow-y-auto flex-grow"></div>
             <div class="mt-6 flex-shrink-0 border-t pt-4">
                  <div class="p-3 bg-blue-50 border border-blue-100 rounded-md mb-4 text-center">
-                    <p class="text-blue-800 text-sm">Don't forget to add your reflection below and click "Submit to Admin Dashboard" to record your results.</p>
+                    <p class="text-blue-800 text-sm">Your test results have been submitted. You can add a reflection below if you'd like.</p>
                  </div>
                  <div class="mb-4">
                     <label for="focus-rating" class="block text-md font-semibold text-gray-700 mb-1">My focus out of 5 (1 very low, 5 very high):</label>
@@ -556,9 +556,9 @@
                 <button onclick="window.location.href='student_dashboard.html'" class="secondary-button px-6 py-2 w-full sm:w-auto">Return to Dashboard</button>
                 <button onclick="window.location.reload()" class="secondary-button px-6 py-2 w-full sm:w-auto">Try Again</button>
                 <div class="w-full sm:w-auto relative group">
-                    <button id="submit-performance-button" class="primary-button px-6 py-2 w-full">Submit to Admin Dashboard</button>
+                    <button id="submit-performance-button" class="primary-button px-6 py-2 w-full">Save Reflection</button>
                     <div class="absolute left-0 right-0 -top-10 bg-blue-100 text-blue-800 text-xs p-1 rounded border border-blue-200 opacity-0 group-hover:opacity-100 transition-opacity">
-                        ↓ Important: Click to save your results to the admin dashboard
+                        ↓ Optional: Save your reflection on this practice session
                     </div>
                 </div>
                 <button id="download-pdf-button" class="primary-button px-6 py-2 w-full sm:w-auto">Download Results PDF</button>
@@ -1206,9 +1206,114 @@ For example: an event with Catering Beta for 15 guests requiring 2.5 hours of se
         // Only stop timer when showing final results
         function endPracticeSessionAndShowResults() {
             stopTimer();
+
+            // Gather data to submit to Firebase
+            const performanceData = {
+                studentName: userName || 'Anonymous',
+                examName: "QR Test 1",
+                score: calculateScore(), // New function to calculate score
+                totalQuestions: questions.length,
+                timeTaken: formatTimeDifference(practiceSessionEndTime - practiceSessionStartTime),
+                answers: userAnswers,
+                questionTimes: questionTimes,
+                flaggedQuestions: flaggedQuestions,
+                goal: userGoal || '',
+                focusArea: userFocusArea || '',
+                focusRating: '', // No reflection data available at this point
+                reflection: '',  // No reflection data available at this point
+                submissionTimestamp: new Date().toISOString(),
+                userAgent: navigator.userAgent
+            };
+
+            // Submit data to Firebase
+            submitDataToFirebase(performanceData);
+            
+            // Show results
             showResultsScreen();
         }
-         function handleEndPracticeSessionFooterClick() {
+
+        // Function to calculate the score
+        function calculateScore() {
+            let score = 0;
+            questions.forEach((qData, index) => {
+                const userAnswer = userAnswers[index];
+                const correctAnswer = qData.correctAnswer;
+                const isCorrect = userAnswer !== null && userAnswer !== undefined && userAnswer === correctAnswer;
+                if (isCorrect) score++;
+            });
+            return score;
+        }
+
+        // Function to submit data to Firebase
+        function submitDataToFirebase(data) {
+            // Only submit if Firebase is initialized
+            if (typeof firebase !== 'undefined' && firebase.firestore) {
+                try {
+                    const db = firebase.firestore();
+                    db.collection("performanceSubmissions").add(data)
+                      .then(() => {
+                          console.log("Performance data submitted to Firebase");
+                          
+                          // Show a success notification that will be displayed on the results screen
+                          setTimeout(() => {
+                              const successNotice = document.createElement('div');
+                              successNotice.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded shadow-lg z-50';
+                              successNotice.innerHTML = `
+                                  <div class="flex items-center">
+                                      <svg class="h-6 w-6 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                      </svg>
+                                      <span class="font-medium">Success!</span>
+                                      <span class="ml-2">Your test results have been submitted to the admin dashboard.</span>
+                                  </div>
+                              `;
+                              document.body.appendChild(successNotice);
+                              
+                              // Remove the notice after 5 seconds
+                              setTimeout(() => {
+                                  successNotice.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                                  setTimeout(() => {
+                                      document.body.removeChild(successNotice);
+                                  }, 500);
+                              }, 5000);
+                          }, 500); // Small delay to ensure results screen is visible
+                      })
+                      .catch((error) => {
+                          console.error("Error submitting to Firebase:", error);
+                          
+                          // Show error notification
+                          setTimeout(() => {
+                              const errorNotice = document.createElement('div');
+                              errorNotice.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded shadow-lg z-50';
+                              errorNotice.innerHTML = `
+                                  <div class="flex items-center">
+                                      <svg class="h-6 w-6 text-red-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                      </svg>
+                                      <span class="font-medium">Error!</span>
+                                      <span class="ml-2">Could not submit your results. You can try adding a reflection.</span>
+                                  </div>
+                              `;
+                              document.body.appendChild(errorNotice);
+                              
+                              // Remove the notice after 5 seconds
+                              setTimeout(() => {
+                                  errorNotice.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                                  setTimeout(() => {
+                                      document.body.removeChild(errorNotice);
+                                  }, 500);
+                              }, 5000);
+                          }, 500);
+                      });
+                } catch (error) {
+                    console.error("Error accessing Firebase:", error);
+                }
+            } else {
+                console.error("Firebase is not initialized");
+            }
+        }
+
+        function handleEndPracticeSessionFooterClick() {
              recordTimeSpent(currentQuestionIndex);
              // Remove stopTimer() call to keep timer running
              showReviewScreen();
@@ -1271,62 +1376,91 @@ For example: an event with Catering Beta for 15 guests requiring 2.5 hours of se
         
         // Function to submit performance data to server
         async function submitPerformanceData() {
-            const performanceData = {
-                studentName: userName || 'Anonymous',
-                examName: "QR Test 1", // You can make this dynamic if needed
-                score: scoreEl.textContent,
-                totalQuestions: totalQuestionsResultsEl.textContent,
-                timeTaken: timeTakenEl.textContent,
-                answers: userAnswers,
-                questionTimes: questionTimes, // Time in milliseconds for each question
-                flaggedQuestions: flaggedQuestions,
-                goal: userGoal || '',
-                focusArea: userFocusArea || '',
-                focusRating: document.getElementById('focus-rating').value || '',
-                reflection: document.getElementById('reflection-text').value || '',
-                submissionTimestamp: new Date().toISOString(),
-                userAgent: navigator.userAgent // Optional: capture user agent for context
-            };
-
+            // Get additional reflection data
+            const focusRating = document.getElementById('focus-rating').value || '';
+            const reflection = document.getElementById('reflection-text').value || '';
+            
+            // Query to find the existing submission
             try {
-                // Ensure Firebase is initialized and db is available
                 if (typeof firebase !== 'undefined' && firebase.firestore) {
                     const db = firebase.firestore();
-                    await db.collection("performanceSubmissions").add(performanceData);
                     
-                    // Create a more visible success notification
-                    const successNotice = document.createElement('div');
-                    successNotice.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded shadow-lg z-50';
-                    successNotice.innerHTML = `
-                        <div class="flex items-center">
-                            <svg class="h-6 w-6 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            <span class="font-medium">Success!</span>
-                            <span class="ml-2">Your performance has been submitted to the admin dashboard.</span>
-                        </div>
-                    `;
-                    document.body.appendChild(successNotice);
+                    // Create a query to find the most recent submission for this user and test
+                    const querySnapshot = await db.collection("performanceSubmissions")
+                        .where("studentName", "==", userName || 'Anonymous')
+                        .where("examName", "==", "QR Test 1")
+                        .orderBy("submissionTimestamp", "desc")
+                        .limit(1)
+                        .get();
                     
-                    // Remove the notice after 5 seconds
-                    setTimeout(() => {
-                        successNotice.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                    if (!querySnapshot.empty) {
+                        // Update the existing document with reflection data
+                        const docRef = querySnapshot.docs[0].ref;
+                        await docRef.update({
+                            focusRating: focusRating,
+                            reflection: reflection,
+                            lastUpdated: new Date().toISOString()
+                        });
+                        
+                        // Show success message
+                        const successNotice = document.createElement('div');
+                        successNotice.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded shadow-lg z-50';
+                        successNotice.innerHTML = `
+                            <div class="flex items-center">
+                                <svg class="h-6 w-6 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                <span class="font-medium">Updated!</span>
+                                <span class="ml-2">Your reflection has been added to your submission.</span>
+                            </div>
+                        `;
+                        document.body.appendChild(successNotice);
+                        
+                        // Remove the notice after 5 seconds
                         setTimeout(() => {
-                            document.body.removeChild(successNotice);
-                        }, 500);
-                    }, 5000);
-                    
-                    // Update the button
-                    document.getElementById('submit-performance-button').disabled = true;
-                    document.getElementById('submit-performance-button').textContent = 'Submitted ✓';
-                    document.getElementById('submit-performance-button').classList.add('bg-green-500');
+                            successNotice.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                            setTimeout(() => {
+                                document.body.removeChild(successNotice);
+                            }, 500);
+                        }, 5000);
+                        
+                        // Update the button
+                        document.getElementById('submit-performance-button').disabled = true;
+                        document.getElementById('submit-performance-button').textContent = 'Reflection Saved ✓';
+                        document.getElementById('submit-performance-button').classList.add('bg-green-500');
+                    } else {
+                        // If for some reason we can't find the original submission, create a new one
+                        console.log("No existing submission found, creating new one with reflection data");
+                        const newData = {
+                            studentName: userName || 'Anonymous',
+                            examName: "QR Test 1",
+                            score: scoreEl.textContent,
+                            totalQuestions: totalQuestionsResultsEl.textContent,
+                            timeTaken: timeTakenEl.textContent,
+                            answers: userAnswers,
+                            questionTimes: questionTimes,
+                            flaggedQuestions: flaggedQuestions,
+                            goal: userGoal || '',
+                            focusArea: userFocusArea || '',
+                            focusRating: focusRating,
+                            reflection: reflection,
+                            submissionTimestamp: new Date().toISOString(),
+                            userAgent: navigator.userAgent
+                        };
+                        await db.collection("performanceSubmissions").add(newData);
+                        
+                        // Update the button
+                        document.getElementById('submit-performance-button').disabled = true;
+                        document.getElementById('submit-performance-button').textContent = 'Reflection Saved ✓';
+                        document.getElementById('submit-performance-button').classList.add('bg-green-500');
+                    }
                 } else {
                     alert('Firebase is not initialized. Please configure Firebase first.');
                     console.error('Firebase or Firestore is not available.');
                 }
             } catch (error) {
-                console.error('Error submitting performance to Firebase:', error);
-                alert('An error occurred while submitting. Please check console or try again.');
+                console.error('Error updating performance data:', error);
+                alert('An error occurred while saving your reflection. Please try again.');
             }
         }
         
