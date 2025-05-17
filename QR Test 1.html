@@ -624,10 +624,24 @@ document.addEventListener('DOMContentLoaded', function() {
             userFocusArea = document.getElementById('focus-area').value.trim();
             timeLeft = 26 * 60;
             
-            // Reset arrays
-            userAnswers.fill(null);
-            questionTimes.fill(0);
-            flaggedQuestions.fill(false);
+            // Make sure arrays are properly initialized with the correct length
+            if (userAnswers.length !== questions.length) {
+                userAnswers = new Array(questions.length).fill(null);
+            } else {
+                userAnswers.fill(null);
+            }
+            
+            if (questionTimes.length !== questions.length) {
+                questionTimes = new Array(questions.length).fill(0);
+            } else {
+                questionTimes.fill(0);
+            }
+            
+            if (flaggedQuestions.length !== questions.length) {
+                flaggedQuestions = new Array(questions.length).fill(false);
+            } else {
+                flaggedQuestions.fill(false);
+            }
             
             questionStartTime = null;
             currentQuestionIndex = 0;
@@ -644,7 +658,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // --- State Variables ---
         // Define all state variables before any functions are called to avoid reference errors
         let currentQuestionIndex = 0;
-        let userAnswers;
+        let userAnswers = [];
         let timerInterval;
         let timeLeft = 26 * 60; 
         let practiceSessionStartTime;
@@ -655,8 +669,8 @@ document.addEventListener('DOMContentLoaded', function() {
         let userFocusArea = '';
         let isReviewingFromResults = false;
         let questionStartTime = null;
-        let questionTimes;
-        let flaggedQuestions;
+        let questionTimes = [];
+        let flaggedQuestions = [];
         let isFilteringFlagged = false;
         let currentlyDisplayedPassageIndex = -1;
         
@@ -673,18 +687,6 @@ document.addEventListener('DOMContentLoaded', function() {
         // Add a debounce flag for submissions
         let isSubmittingReflection = false;
         
-        if (reviewParam) {
-            // We're in review mode - load the past test data
-            loadPastTestForReview(reviewParam);
-        } else {
-            // Regular test mode - continue with normal setup
-            // Initialize arrays based on questions length
-            userAnswers = new Array(questions.length).fill(null);
-            questionTimes = new Array(questions.length).fill(0);
-            flaggedQuestions = new Array(questions.length).fill(false);
-            showSetupScreen();
-        }
-
         // --- Data ---
         const passages = [
             `The table shows the fees for different membership types and activities at a fitness centre.
@@ -766,6 +768,20 @@ For example: an event with Catering Beta for 15 guests requiring 2.5 hours of se
             { passageIndex: 15, text: "A flight departs from Japan at 11:00 PM on Friday, heading to Morocco. If the flight duration is 14 hours, what time and day will it be in Morocco upon arrival?", options: ["Saturday 4:00 AM", "Saturday 12:00 PM", "Saturday 8:00 PM", "Sunday 1:00 AM", "Can't tell"], correctAnswer: "A", explanation: "From the timezone chart, Japan is UTC+9 and Morocco is UTC+1.\nThe time difference is 9 - 1 = 8 hours.\nJapan is 8 hours ahead of Morocco.\nIf the plane departs Japan at 11:00 PM Friday and flies for 14 hours, it arrives at:\n11:00 PM Friday (Japan) + 14 hours = 1:00 PM Saturday (Japan)\nConverting to Morocco time: 1:00 PM Saturday (Japan) - 8 hours = 5:00 AM Saturday (Morocco)\nAdding 3 hours (based on distance and time zones): 8:00 PM Saturday." },
             { passageIndex: 15, text: "An online conference is scheduled to start at 3:00 PM GMT. Maria is in Argentina and wants to join 30 minutes before the official start to test her connection. What local time should Maria log in?", options: ["11:30 AM", "12:00 PM", "12:30 PM", "5:30 PM", "Can't tell"], correctAnswer: "A", explanation: "From the timezone chart, GMT is UTC+0 and Argentina is UTC-3.\nThe time difference is 0 - (-3) = 3 hours.\nArgentina is 3 hours behind GMT.\nSo 3:00 PM GMT would be 3:00 PM - 3 hours = 12:00 PM in Argentina.\nSince Maria wants to join 30 minutes before, she should log in at 12:00 PM - 30 minutes = 11:30 AM Argentina time." }
         ];
+
+        // Now initialize arrays with questions.length
+        userAnswers = new Array(questions.length).fill(null);
+        questionTimes = new Array(questions.length).fill(0);
+        flaggedQuestions = new Array(questions.length).fill(false);
+
+        // Check for review mode and initialize appropriate screen
+        if (reviewParam) {
+            // We're in review mode - load the past test data
+            loadPastTestForReview(reviewParam);
+        } else {
+            // Regular test mode - continue with normal setup
+            showSetupScreen();
+        }
 
         // --- Elements ---
         const appContainer = document.getElementById('app-container');
