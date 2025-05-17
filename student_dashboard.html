@@ -755,15 +755,19 @@
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-blue-500 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
-                        <p class="text-gray-700 font-medium">No test results found</p>
-                        <p class="text-gray-500 text-sm mt-2">Complete a practice test to see your performance history here</p>
-                        <div class="mt-4 flex justify-center gap-3">
-                            <button id="go-to-tests-button" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors flex items-center">
+                        <p class="text-gray-700 font-medium">No test results found for your account</p>
+                        <p class="text-gray-500 text-sm mt-2">Complete a practice test and submit your reflections to see your performance history here</p>
+                        <div class="mt-4 flex flex-col md:flex-row justify-center gap-3">
+                            <button id="go-to-tests-button" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors flex items-center justify-center">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                                 </svg>
                                 Take QR Test 1
                             </button>
+                            <div class="mt-4 md:mt-0 text-center border border-gray-200 rounded p-3 bg-blue-50 max-w-md">
+                                <div class="font-medium text-blue-700 mb-1">Important Note</div>
+                                <p class="text-sm text-gray-600">After completing a test, make sure to click the "Submit Reflections" button to save your results.</p>
+                            </div>
                         </div>
                     </div>
                     
@@ -1545,76 +1549,124 @@
             }
             
             try {
-                // Check if Firestore is available
-                if (!firebase.firestore) {
-                    console.error("Firestore is not initialized");
-                    resultsLoading.classList.add('hidden');
-                    resultsError.classList.remove('hidden');
-                    return;
+                // Check if Firestore is available and retry if needed
+                const maxRetries = 3;
+                let retryCount = 0;
+                
+                function attemptFirestoreConnection() {
+                    if (retryCount >= maxRetries) {
+                        console.error("Max retries reached for Firestore connection");
+                        resultsLoading.classList.add('hidden');
+                        resultsError.classList.remove('hidden');
+                        return;
+                    }
+                    
+                    if (!firebase.firestore) {
+                        console.error(`Firestore is not initialized, retrying... (${retryCount + 1}/${maxRetries})`);
+                        retryCount++;
+                        // Wait a bit before retrying
+                        setTimeout(attemptFirestoreConnection, 1000);
+                        return;
+                    }
+                    
+                    // Firestore is available, proceed with fetching data
+                    fetchUserResults();
                 }
                 
-                const db = firebase.firestore();
-                const userEmail = firebase.auth().currentUser.email;
-                const userName = firebase.auth().currentUser.displayName || userEmail;
-                
-                console.log("Fetching results for user:", userName);
-                
-                db.collection("performanceSubmissions")
-                  .where("studentName", "==", userName)
-                  .orderBy("submissionTimestamp", "desc")
-                  .get()
-                  .then((querySnapshot) => {
-                      console.log("Query snapshot received, empty:", querySnapshot.empty);
-                      resultsLoading.classList.add('hidden');
-                      
-                      if (querySnapshot.empty) {
-                          resultsEmpty.classList.remove('hidden');
-                          return;
-                      }
-                      
-                      // Process results
-                      const results = [];
-                      querySnapshot.forEach((doc) => {
-                          const data = doc.data();
-                          results.push({
-                              id: doc.id,
-                              ...data,
-                              date: new Date(data.submissionTimestamp || Date.now())
+                function fetchUserResults() {
+                    const db = firebase.firestore();
+                    const userEmail = firebase.auth().currentUser.email;
+                    const userName = firebase.auth().currentUser.displayName || userEmail;
+                    
+                    console.log("Fetching results for user:", userName, "with email:", userEmail);
+                    
+                    // Create an array to store promises for both queries
+                    const promises = [];
+                    
+                    // Query by name
+                    promises.push(
+                        db.collection("performanceSubmissions")
+                        .where("studentName", "==", userName)
+                        .orderBy("submissionTimestamp", "desc")
+                        .get()
+                    );
+                    
+                    // Query by email if available
+                    if (userEmail) {
+                        promises.push(
+                            db.collection("performanceSubmissions")
+                            .where("studentEmail", "==", userEmail)
+                            .orderBy("submissionTimestamp", "desc")
+                            .get()
+                        );
+                    }
+                    
+                    // Execute both queries and combine results
+                    Promise.all(promises)
+                      .then((snapshots) => {
+                          console.log("Query snapshots received:", snapshots.length);
+                          resultsLoading.classList.add('hidden');
+                          
+                          // Process results from both queries, removing duplicates
+                          const results = [];
+                          const seenIds = new Set();
+                          
+                          snapshots.forEach(querySnapshot => {
+                              querySnapshot.forEach((doc) => {
+                                  // Only add if we haven't seen this document ID before
+                                  if (!seenIds.has(doc.id)) {
+                                      seenIds.add(doc.id);
+                                      const data = doc.data();
+                                      results.push({
+                                          id: doc.id,
+                                          ...data,
+                                          date: new Date(data.submissionTimestamp || Date.now())
+                                      });
+                                  }
+                              });
                           });
+                          
+                          console.log(`Found ${results.length} unique results`);
+                          
+                          // Sort results by date (most recent first)
+                          results.sort((a, b) => b.date - a.date);
+                          
+                          if (results.length > 0) {
+                              updateResultsSummary(results);
+                              populateResultsTable(results);
+                              resultsSummary.classList.remove('hidden');
+                              
+                              // Add event listeners for filters and sorts
+                              const resultsFilter = document.getElementById('results-filter');
+                              const resultsSort = document.getElementById('results-sort');
+                              
+                              resultsFilter.addEventListener('change', () => {
+                                  populateResultsTable(results);
+                              });
+                              
+                              resultsSort.addEventListener('change', () => {
+                                  populateResultsTable(results);
+                              });
+                              
+                              // Load ChartJS if needed
+                              loadChartJSIfNeeded(() => {
+                                  renderProgressChart(results);
+                              });
+                          } else {
+                              console.log("No results found for this user");
+                              resultsEmpty.classList.remove('hidden');
+                          }
+                      })
+                      .catch((error) => {
+                          console.error("Error fetching results:", error);
+                          resultsLoading.classList.add('hidden');
+                          resultsError.classList.remove('hidden');
                       });
-                      
-                      console.log(`Found ${results.length} results`);
-                      
-                      if (results.length > 0) {
-                          updateResultsSummary(results);
-                          populateResultsTable(results);
-                          resultsSummary.classList.remove('hidden');
-                          
-                          // Add event listeners for filters and sorts
-                          const resultsFilter = document.getElementById('results-filter');
-                          const resultsSort = document.getElementById('results-sort');
-                          
-                          resultsFilter.addEventListener('change', () => {
-                              populateResultsTable(results);
-                          });
-                          
-                          resultsSort.addEventListener('change', () => {
-                              populateResultsTable(results);
-                          });
-                          
-                          // Load ChartJS if needed
-                          loadChartJSIfNeeded(() => {
-                              renderProgressChart(results);
-                          });
-                      } else {
-                          resultsEmpty.classList.remove('hidden');
-                      }
-                  })
-                  .catch((error) => {
-                      console.error("Error fetching results:", error);
-                      resultsLoading.classList.add('hidden');
-                      resultsError.classList.remove('hidden');
-                  });
+                }
+                
+                // Start the first attempt
+                attemptFirestoreConnection();
+                
             } catch (error) {
                 console.error("Error in loadUserResults:", error);
                 resultsLoading.classList.add('hidden');
