@@ -139,6 +139,140 @@
             min-height: 1.25rem; /* Reserve space for error message */
         }
 
+        /* New styles for filtering controls */
+        .filter-controls {
+            background-color: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .filter-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .filter-group label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #4b5563;
+            margin-bottom: 0.375rem;
+        }
+        
+        .filter-input {
+            padding: 0.625rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            font-size: 0.9rem;
+        }
+        
+        .filter-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+        }
+        
+        .filter-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.5rem;
+        }
+        
+        .filter-button {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 0.375rem;
+            font-weight: 500;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .apply-filters {
+            background-color: #3b82f6;
+            color: white;
+        }
+        
+        .apply-filters:hover {
+            background-color: #2563eb;
+        }
+        
+        .reset-filters {
+            background-color: #f3f4f6;
+            color: #4b5563;
+            border: 1px solid #d1d5db;
+        }
+        
+        .reset-filters:hover {
+            background-color: #e5e7eb;
+        }
+        
+        .export-csv {
+            background-color: #10b981;
+            color: white;
+        }
+        
+        .export-csv:hover {
+            background-color: #059669;
+        }
+        
+        /* Sortable table headers */
+        th.sortable {
+            cursor: pointer;
+            position: relative;
+            padding-right: 20px;
+        }
+        
+        th.sortable::after {
+            content: "↕️";
+            font-size: 0.8rem;
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            opacity: 0.5;
+        }
+        
+        th.sorted-asc::after {
+            content: "↑";
+            opacity: 1;
+        }
+        
+        th.sorted-desc::after {
+            content: "↓";
+            opacity: 1;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .filter-row {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+            
+            .filter-group {
+                width: 100%;
+            }
+            
+            .filter-actions {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .filter-button {
+                width: 100%;
+            }
+        }
     </style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -170,6 +304,69 @@
             <button id="admin-logout-button" class="btn btn-logout text-sm px-4 py-2">Logout</button>
         </div>
         <h1>Student Performance Dashboard</h1>
+        
+        <!-- Filter controls -->
+        <div class="filter-controls">
+            <h2 class="text-lg font-semibold mb-3">Filter Results</h2>
+            
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label for="filter-student">Student Name</label>
+                    <input type="text" id="filter-student" class="filter-input" placeholder="Filter by student name">
+                </div>
+                
+                <div class="filter-group">
+                    <label for="filter-exam">Exam Type</label>
+                    <select id="filter-exam" class="filter-input">
+                        <option value="">All Exams</option>
+                        <option value="QR Test 1">QR Test 1</option>
+                        <option value="QR Test 2">QR Test 2</option>
+                        <option value="QR Test 3">QR Test 3</option>
+                        <option value="QR Test 4">QR Test 4</option>
+                        <option value="QR Test 5">QR Test 5</option>
+                        <option value="QR Test 6">QR Test 6</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="filter-date-from">From Date</label>
+                    <input type="date" id="filter-date-from" class="filter-input">
+                </div>
+                
+                <div class="filter-group">
+                    <label for="filter-date-to">To Date</label>
+                    <input type="date" id="filter-date-to" class="filter-input">
+                </div>
+            </div>
+            
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label for="search-input">Search (any field)</label>
+                    <input type="text" id="search-input" class="filter-input" placeholder="Search in all fields">
+                </div>
+                <div class="filter-group">
+                    <label for="filter-score-min">Min Score</label>
+                    <input type="number" id="filter-score-min" class="filter-input" placeholder="Min score" min="0">
+                </div>
+                <div class="filter-group">
+                    <label for="filter-score-max">Max Score</label>
+                    <input type="number" id="filter-score-max" class="filter-input" placeholder="Max score" max="36">
+                </div>
+                <div class="filter-group">
+                    <label for="submissions-count">Results Count</label>
+                    <div id="submissions-count" class="mt-2 text-center text-gray-600 font-semibold">Showing 0 results</div>
+                </div>
+            </div>
+            
+            <div class="filter-actions">
+                <div>
+                    <button id="apply-filters" class="filter-button apply-filters mr-2">Apply Filters</button>
+                    <button id="reset-filters" class="filter-button reset-filters">Reset</button>
+                </div>
+                <button id="export-csv" class="filter-button export-csv">Export to CSV</button>
+            </div>
+        </div>
+        
         <div id="performance-table-container">
             <p>Loading performance data...</p>
         </div>
@@ -203,7 +400,25 @@
         const adminLogoutButton = document.getElementById('admin-logout-button');
         const adminUserEmailSpan = document.getElementById('admin-user-email');
         const googleLoginButton = document.getElementById('google-login-button');
-        // const microsoftLoginButton = document.getElementById('microsoft-login-button'); // Removed
+        
+        // Filter elements
+        const filterStudent = document.getElementById('filter-student');
+        const filterExam = document.getElementById('filter-exam');
+        const filterDateFrom = document.getElementById('filter-date-from');
+        const filterDateTo = document.getElementById('filter-date-to');
+        const searchInput = document.getElementById('search-input');
+        const filterScoreMin = document.getElementById('filter-score-min');
+        const filterScoreMax = document.getElementById('filter-score-max');
+        const submissionsCount = document.getElementById('submissions-count');
+        const applyFiltersBtn = document.getElementById('apply-filters');
+        const resetFiltersBtn = document.getElementById('reset-filters');
+        const exportCsvBtn = document.getElementById('export-csv');
+
+        // --- Data Storage ---
+        let allPerformanceData = []; // Will store all fetched data
+        let filteredData = []; // Will store currently filtered data
+        let currentSortColumn = 'submissionTimestamp'; // Default sort column
+        let currentSortOrder = 'desc'; // Default sort order: descending
 
         // --- Authentication Logic ---
 
@@ -236,9 +451,6 @@
             });
         }
 
-        // Microsoft Sign-In (Removed logic as per your request)
-        // if (microsoftLoginButton) { ... } 
-
         // Logout
         if (adminLogoutButton) {
             adminLogoutButton.addEventListener('click', () => {
@@ -266,10 +478,304 @@
             }
         });
 
+        // --- Filter Event Listeners ---
+        applyFiltersBtn.addEventListener('click', () => {
+            applyFilters();
+        });
+        
+        resetFiltersBtn.addEventListener('click', () => {
+            resetFilters();
+            applyFilters();
+        });
+        
+        exportCsvBtn.addEventListener('click', () => {
+            exportToCSV();
+        });
+
+        // Live search as you type
+        searchInput.addEventListener('input', () => {
+            applyFilters();
+        });
+        
+        // --- Sorting Logic ---
+        function sortData(column) {
+            // If clicking the same column, toggle sort order
+            if (column === currentSortColumn) {
+                currentSortOrder = currentSortOrder === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSortColumn = column;
+                currentSortOrder = 'asc'; // Default to ascending for a new column
+            }
+            
+            applyFilters();
+        }
+
+        // --- Filter Functions ---
+        function resetFilters() {
+            filterStudent.value = '';
+            filterExam.value = '';
+            filterDateFrom.value = '';
+            filterDateTo.value = '';
+            searchInput.value = '';
+            filterScoreMin.value = '';
+            filterScoreMax.value = '';
+        }
+
+        function applyFilters() {
+            // Get filter values
+            const studentFilter = filterStudent.value.toLowerCase();
+            const examFilter = filterExam.value;
+            const dateFromFilter = filterDateFrom.value ? new Date(filterDateFrom.value) : null;
+            const dateToFilter = filterDateTo.value ? new Date(filterDateTo.value) : null;
+            const searchFilter = searchInput.value.toLowerCase();
+            const scoreMinFilter = filterScoreMin.value ? parseInt(filterScoreMin.value) : null;
+            const scoreMaxFilter = filterScoreMax.value ? parseInt(filterScoreMax.value) : null;
+            
+            // Apply filters to all data
+            filteredData = allPerformanceData.filter(item => {
+                // Student name filter
+                if (studentFilter && (!item.studentName || !item.studentName.toLowerCase().includes(studentFilter))) {
+                    return false;
+                }
+                
+                // Exam type filter
+                if (examFilter && item.examName !== examFilter) {
+                    return false;
+                }
+                
+                // Date range filter
+                if (item.submissionTimestamp) {
+                    const itemDate = new Date(item.submissionTimestamp);
+                    if (dateFromFilter && itemDate < dateFromFilter) {
+                        return false;
+                    }
+                    if (dateToFilter) {
+                        // Add one day to include the end date
+                        const adjustedToDate = new Date(dateToFilter);
+                        adjustedToDate.setDate(adjustedToDate.getDate() + 1);
+                        if (itemDate > adjustedToDate) {
+                            return false;
+                        }
+                    }
+                }
+                
+                // Score range filter
+                if (scoreMinFilter !== null) {
+                    const score = parseInt(item.score);
+                    if (isNaN(score) || score < scoreMinFilter) {
+                        return false;
+                    }
+                }
+                
+                if (scoreMaxFilter !== null) {
+                    const score = parseInt(item.score);
+                    if (isNaN(score) || score > scoreMaxFilter) {
+                        return false;
+                    }
+                }
+                
+                // General search across all fields
+                if (searchFilter) {
+                    // Create a string with all searchable fields
+                    const searchableText = [
+                        item.studentName,
+                        item.examName, 
+                        item.score,
+                        item.totalQuestions,
+                        item.timeTaken,
+                        item.goal,
+                        item.focusArea,
+                        item.focusRating,
+                        item.reflection
+                    ].filter(Boolean).join(' ').toLowerCase();
+                    
+                    if (!searchableText.includes(searchFilter)) {
+                        return false;
+                    }
+                }
+                
+                return true;
+            });
+            
+            // Sort the filtered data
+            filteredData.sort((a, b) => {
+                let valA = a[currentSortColumn];
+                let valB = b[currentSortColumn];
+                
+                // Special handling for dates
+                if (currentSortColumn === 'submissionTimestamp') {
+                    valA = valA ? new Date(valA).getTime() : 0;
+                    valB = valB ? new Date(valB).getTime() : 0;
+                }
+                
+                // Special handling for numeric values
+                else if (currentSortColumn === 'score' || currentSortColumn === 'focusRating') {
+                    valA = valA ? parseInt(valA) : 0;
+                    valB = valB ? parseInt(valB) : 0;
+                }
+                
+                // String comparison for other columns
+                else {
+                    valA = valA ? String(valA).toLowerCase() : '';
+                    valB = valB ? String(valB).toLowerCase() : '';
+                }
+                
+                // Apply sorting order
+                if (currentSortOrder === 'asc') {
+                    return valA > valB ? 1 : valA < valB ? -1 : 0;
+                } else {
+                    return valA < valB ? 1 : valA > valB ? -1 : 0;
+                }
+            });
+            
+            // Update the results count and display results
+            submissionsCount.textContent = `Showing ${filteredData.length} of ${allPerformanceData.length} results`;
+            displayResults(filteredData);
+        }
+
+        // --- Export to CSV ---
+        function exportToCSV() {
+            // Only export if there's data
+            if (filteredData.length === 0) {
+                alert('No data to export!');
+                return;
+            }
+            
+            // Define CSV headers
+            const headers = [
+                'Submission Time',
+                'Student Name',
+                'Exam Name',
+                'Score',
+                'Total Questions',
+                'Time Taken',
+                'Goal',
+                'Focus Area',
+                'Focus Rating',
+                'Reflection'
+            ];
+            
+            // Format data for CSV
+            const rows = [headers];
+            
+            filteredData.forEach(item => {
+                const row = [
+                    item.submissionTimestamp ? new Date(item.submissionTimestamp).toLocaleString() : 'N/A',
+                    item.studentName || 'N/A',
+                    item.examName || 'N/A',
+                    item.score !== undefined ? item.score.toString() : 'N/A',
+                    item.totalQuestions !== undefined ? item.totalQuestions.toString() : 'N/A',
+                    item.timeTaken || 'N/A',
+                    item.goal || 'N/A',
+                    item.focusArea || 'N/A',
+                    item.focusRating || 'N/A',
+                    item.reflection || 'N/A'
+                ];
+                
+                // Clean up any commas and quotes in the data to avoid CSV issues
+                const cleanedRow = row.map(cell => {
+                    // Escape double quotes with double quotes
+                    const escaped = String(cell).replace(/"/g, '""');
+                    // Wrap in quotes if contains comma, newline or quotes
+                    return /[",\n\r]/.test(escaped) ? `"${escaped}"` : escaped;
+                });
+                
+                rows.push(cleanedRow);
+            });
+            
+            // Convert to CSV string
+            const csvContent = rows.map(row => row.join(',')).join('\n');
+            
+            // Create and trigger download
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', `performance_data_${new Date().toISOString().slice(0,10)}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // --- Display Results Function ---
+        function displayResults(data) {
+            if (data.length === 0) {
+                performanceTableContainer.innerHTML = "<p class=\"text-center text-gray-600\">No matching records found.</p>";
+                return;
+            }
+            
+            let tableHTML = `
+                <div class="overflow-x-auto">
+                    <table class="min-w-full">
+                        <thead>
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider sortable ${currentSortColumn === 'submissionTimestamp' ? 'sorted-' + currentSortOrder : ''}" 
+                                    data-sort="submissionTimestamp">Submission Time</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider sortable ${currentSortColumn === 'studentName' ? 'sorted-' + currentSortOrder : ''}" 
+                                    data-sort="studentName">Student Name</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider sortable ${currentSortColumn === 'examName' ? 'sorted-' + currentSortOrder : ''}" 
+                                    data-sort="examName">Exam Name</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider sortable ${currentSortColumn === 'score' ? 'sorted-' + currentSortOrder : ''}" 
+                                    data-sort="score">Score</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider sortable ${currentSortColumn === 'totalQuestions' ? 'sorted-' + currentSortOrder : ''}" 
+                                    data-sort="totalQuestions">Total Qs</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider sortable ${currentSortColumn === 'timeTaken' ? 'sorted-' + currentSortOrder : ''}" 
+                                    data-sort="timeTaken">Time Taken</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider sortable ${currentSortColumn === 'goal' ? 'sorted-' + currentSortOrder : ''}" 
+                                    data-sort="goal">Goal</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider sortable ${currentSortColumn === 'focusArea' ? 'sorted-' + currentSortOrder : ''}" 
+                                    data-sort="focusArea">Focus Area</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider sortable ${currentSortColumn === 'focusRating' ? 'sorted-' + currentSortOrder : ''}" 
+                                    data-sort="focusRating">Focus Rating</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider sortable ${currentSortColumn === 'reflection' ? 'sorted-' + currentSortOrder : ''}" 
+                                    data-sort="reflection">Reflection</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+            `;
+
+            data.forEach(item => {
+                const submissionDate = item.submissionTimestamp ? new Date(item.submissionTimestamp).toLocaleString() : 'N/A';
+                const scoreText = item.score !== undefined ? item.score.toString() : 'N/A';
+                const totalQuestionsText = item.totalQuestions !== undefined ? item.totalQuestions.toString() : 'N/A';
+
+                tableHTML += `
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap">${submissionDate}</td>
+                        <td class="px-6 py-4">${item.studentName || 'N/A'}</td>
+                        <td class="px-6 py-4">${item.examName || 'N/A'}</td>
+                        <td class="px-6 py-4">${scoreText}</td>
+                        <td class="px-6 py-4">${totalQuestionsText}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${item.timeTaken || 'N/A'}</td>
+                        <td class="px-6 py-4">${item.goal || 'N/A'}</td>
+                        <td class="px-6 py-4">${item.focusArea || 'N/A'}</td>
+                        <td class="px-6 py-4">${item.focusRating || 'N/A'}</td>
+                        <td class="px-6 py-4">${item.reflection || 'N/A'}</td>
+                    </tr>
+                `;
+            });
+
+            tableHTML += `
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            
+            performanceTableContainer.innerHTML = tableHTML;
+            
+            // Add click handlers for sorting
+            document.querySelectorAll('th.sortable').forEach(th => {
+                th.addEventListener('click', () => {
+                    const column = th.getAttribute('data-sort');
+                    sortData(column);
+                });
+            });
+        }
 
         // --- Firestore Data Fetching Logic ---
         async function fetchPerformanceData() {
-            if (!auth.currentUser) { // Don't fetch if no user is logged in
+            if (!auth.currentUser) {
                 console.log("FetchPerformanceData called, but no user is logged in.");
                 performanceTableContainer.innerHTML = '<p class="text-center text-gray-500">Please log in to view data.</p>';
                 return;
@@ -277,73 +783,65 @@
 
             console.log("Attempting to fetch performance data (user authenticated)...");
             performanceTableContainer.innerHTML = '<p class="text-center text-gray-500">Loading performance data...</p>';
+            
             try {
                 const snapshot = await db.collection("performanceSubmissions")
                                          .orderBy("submissionTimestamp", "desc")
                                          .get();
                 console.log("Snapshot received:", snapshot);
-                console.log("Is snapshot empty?", snapshot.empty);
-
+                
                 if (snapshot.empty) {
                     console.log("No documents found in snapshot.");
                     performanceTableContainer.innerHTML = "<p class=\"text-center text-gray-600\">No performance data found.</p>";
+                    submissionsCount.textContent = "Showing 0 results";
                     return;
                 }
-                console.log("Snapshot contains documents. Building table...");
-
-                let tableHTML = `
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full">
-                            <thead>
-                                <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Submission Time</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Student Name</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Exam Name</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Score</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Total Qs</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Time Taken</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Goal</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Focus Area</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Focus Rating</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Reflection</th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                `;
-
-                snapshot.forEach(doc => {
+                
+                // Process the data
+                allPerformanceData = snapshot.docs.map(doc => {
                     const data = doc.data();
-                    const submissionDate = data.submissionTimestamp ? new Date(data.submissionTimestamp).toLocaleString() : 'N/A';
-                    const scoreText = data.score !== undefined ? data.score.toString() : 'N/A';
-                    const totalQuestionsText = data.totalQuestions !== undefined ? data.totalQuestions.toString() : 'N/A';
-
-                    tableHTML += `
-                        <tr>
-                            <td class="px-6 py-4 whitespace-nowrap">${submissionDate}</td>
-                            <td class="px-6 py-4">${data.studentName || 'N/A'}</td>
-                            <td class="px-6 py-4">${data.examName || 'N/A'}</td>
-                            <td class="px-6 py-4">${scoreText}</td>
-                            <td class="px-6 py-4">${totalQuestionsText}</td>
-                            <td class="px-6 py-4 whitespace-nowrap">${data.timeTaken || 'N/A'}</td>
-                            <td class="px-6 py-4">${data.goal || 'N/A'}</td>
-                            <td class="px-6 py-4">${data.focusArea || 'N/A'}</td>
-                            <td class="px-6 py-4">${data.focusRating || 'N/A'}</td>
-                            <td class="px-6 py-4">${data.reflection || 'N/A'}</td>
-                        </tr>
-                    `;
+                    return {
+                        id: doc.id,
+                        submissionTimestamp: data.submissionTimestamp,
+                        studentName: data.studentName,
+                        examName: data.examName,
+                        score: data.score,
+                        totalQuestions: data.totalQuestions,
+                        timeTaken: data.timeTaken,
+                        goal: data.goal,
+                        focusArea: data.focusArea,
+                        focusRating: data.focusRating,
+                        reflection: data.reflection
+                    };
                 });
-
-                tableHTML += `
-                            </tbody>
-                        </table>
-                    </div>
-                `;
-                performanceTableContainer.innerHTML = tableHTML;
-                console.log("Table HTML should now be on page.");
-
+                
+                // Initially, filtered data is the same as all data
+                filteredData = [...allPerformanceData];
+                
+                // Populate the exam filter dropdown dynamically
+                // First, get unique exam names
+                const examTypes = [...new Set(allPerformanceData.map(item => item.examName).filter(Boolean))];
+                
+                // Clear existing options (except the default "All Exams")
+                while (filterExam.options.length > 1) {
+                    filterExam.remove(1);
+                }
+                
+                // Add options for each unique exam type
+                examTypes.forEach(examType => {
+                    const option = document.createElement('option');
+                    option.value = examType;
+                    option.textContent = examType;
+                    filterExam.appendChild(option);
+                });
+                
+                // Display the initial data without filters
+                applyFilters();
+                
             } catch (error) {
                 console.error("Error in fetchPerformanceData:", error);
                 performanceTableContainer.innerHTML = "<p class=\"text-center text-red-600\">Error loading data. This could be due to insufficient permissions or a network issue. Check the console.</p>";
+                submissionsCount.textContent = "Error loading data";
             }
         }
     </script>
