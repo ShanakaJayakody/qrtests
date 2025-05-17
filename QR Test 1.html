@@ -522,7 +522,7 @@
              <p class="text-center text-gray-600 mb-6">Click on a question number to review it. Green indicates answered, Yellow border indicates flagged.</p>
             <div id="review-grid" class="grid grid-cols-4 gap-3 mb-6 w-full max-w-xs sm:max-w-sm md:max-w-md"></div>
             <div class="mt-auto pt-6">
-                <button id="end-practice-session-button" class="danger-button text-lg px-8 py-3">Submit</button>
+                <button id="end-practice-session-button" class="danger-button text-lg px-8 py-3">See Results</button>
             </div>
         </div>
 
@@ -540,6 +540,9 @@
             <p class="text-sm text-gray-500 mb-4 flex-shrink-0">Click on a question box below to review it.</p>
             <div id="results-details-grid" class="overflow-y-auto flex-grow"></div>
             <div class="mt-6 flex-shrink-0 border-t pt-4">
+                 <div class="p-3 bg-blue-50 border border-blue-100 rounded-md mb-4 text-center">
+                    <p class="text-blue-800 text-sm">Don't forget to add your reflection below and click "Submit to Admin Dashboard" to record your results.</p>
+                 </div>
                  <div class="mb-4">
                     <label for="focus-rating" class="block text-md font-semibold text-gray-700 mb-1">My focus out of 5 (1 very low, 5 very high):</label>
                     <input type="number" id="focus-rating" name="focus-rating" min="1" max="5" class="mt-1 block w-20 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="1-5">
@@ -552,7 +555,12 @@
               <div class="mt-6 text-center flex-shrink-0 flex flex-col sm:flex-row justify-center items-center space-y-3 sm:space-y-0 sm:space-x-4">
                 <button onclick="window.location.href='student_dashboard.html'" class="secondary-button px-6 py-2 w-full sm:w-auto">Return to Dashboard</button>
                 <button onclick="window.location.reload()" class="secondary-button px-6 py-2 w-full sm:w-auto">Try Again</button>
-                <button id="submit-performance-button" class="primary-button px-6 py-2 w-full sm:w-auto">Submit Performance to Admin</button>
+                <div class="w-full sm:w-auto relative group">
+                    <button id="submit-performance-button" class="primary-button px-6 py-2 w-full">Submit to Admin Dashboard</button>
+                    <div class="absolute left-0 right-0 -top-10 bg-blue-100 text-blue-800 text-xs p-1 rounded border border-blue-200 opacity-0 group-hover:opacity-100 transition-opacity">
+                        ↓ Important: Click to save your results to the admin dashboard
+                    </div>
+                </div>
                 <button id="download-pdf-button" class="primary-button px-6 py-2 w-full sm:w-auto">Download Results PDF</button>
             </div>
         </div>
@@ -1286,10 +1294,32 @@ For example: an event with Catering Beta for 15 guests requiring 2.5 hours of se
                     const db = firebase.firestore();
                     await db.collection("performanceSubmissions").add(performanceData);
                     
-                    alert('Performance submitted successfully!');
+                    // Create a more visible success notification
+                    const successNotice = document.createElement('div');
+                    successNotice.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded shadow-lg z-50';
+                    successNotice.innerHTML = `
+                        <div class="flex items-center">
+                            <svg class="h-6 w-6 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span class="font-medium">Success!</span>
+                            <span class="ml-2">Your performance has been submitted to the admin dashboard.</span>
+                        </div>
+                    `;
+                    document.body.appendChild(successNotice);
+                    
+                    // Remove the notice after 5 seconds
+                    setTimeout(() => {
+                        successNotice.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                        setTimeout(() => {
+                            document.body.removeChild(successNotice);
+                        }, 500);
+                    }, 5000);
+                    
+                    // Update the button
                     document.getElementById('submit-performance-button').disabled = true;
-                    document.getElementById('submit-performance-button').textContent = 'Submitted';
-                    document.getElementById('submit-performance-button').classList.add('bg-green-500'); // Green background on success
+                    document.getElementById('submit-performance-button').textContent = 'Submitted ✓';
+                    document.getElementById('submit-performance-button').classList.add('bg-green-500');
                 } else {
                     alert('Firebase is not initialized. Please configure Firebase first.');
                     console.error('Firebase or Firestore is not available.');
