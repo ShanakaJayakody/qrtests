@@ -592,8 +592,19 @@ document.addEventListener('DOMContentLoaded', function() {
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore(); // Initialize Firestore
-        // You can initialize analytics if needed: const analytics = firebase.analytics();
 
+        // Check for review mode from URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const reviewParam = urlParams.get('review');
+        
+        if (reviewParam) {
+            // We're in review mode - load the past test data
+            loadPastTestForReview(reviewParam);
+        } else {
+            // Regular test mode - continue with normal setup
+            showSetupScreen();
+        }
+        
         // --- Data ---
         const passages = [
             `The table shows the fees for different membership types and activities at a fitness centre.
@@ -1395,9 +1406,20 @@ For example: an event with Catering Beta for 15 guests requiring 2.5 hours of se
                 if (typeof firebase !== 'undefined' && firebase.firestore) {
                     const db = firebase.firestore();
                     
+                    // Get current authenticated user data if available
+                    let userEmail = '';
+                    let userDisplayName = '';
+                    
+                    if (firebase.auth && firebase.auth().currentUser) {
+                        const currentUser = firebase.auth().currentUser;
+                        userEmail = currentUser.email || '';
+                        userDisplayName = currentUser.displayName || '';
+                    }
+                    
                     // Instead of querying for existing document, create a new one with both test results and reflection
                     const performanceData = {
-                        studentName: userName || 'Anonymous',
+                        studentName: userName || userDisplayName || 'Anonymous',
+                        studentEmail: userEmail || '',
                         examName: "QR Test 1",
                         score: scoreEl.textContent,
                         totalQuestions: totalQuestionsResultsEl.textContent,
@@ -1487,6 +1509,36 @@ For example: an event with Catering Beta for 15 guests requiring 2.5 hours of se
                 memIndicator.style.display = 'none';
             }
         }
+
+        // Add specific event handler for equals button
+        document.querySelector('.calc-button.equals').addEventListener('click', (e) => {
+            console.log('Equals button clicked');
+            calculate();
+            e.stopPropagation(); // Prevent event bubbling
+        });
+
+        calcButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const value = button.dataset.calcValue;
+                const action = button.dataset.calcAction;
+                
+                console.log('Button clicked:', button.textContent, 'value:', value, 'action:', action);
+
+                if (value !== undefined) { 
+                    if (value === '.') { inputDecimal(); } 
+                    else { inputDigit(value); }
+                } else if (action) { 
+                    if (['+', '-', '*', '/'].includes(action)) { handleOperator(action); } 
+                    else if (action === 'equals') { 
+                        console.log('Equals action detected');
+                        calculate(); 
+                    } 
+                    else if (action === 'clear') { clearCalculator(); } 
+                    else if (['m+', 'm-', 'mrc'].includes(action)) { handleMemory(action); } 
+                    else if (['sqrt', 'percent', 'negate', 'backspace'].includes(action)) { handleSpecialFunction(action); }
+                }
+            });
+        });
 
         function clearCalculator() {
             calcCurrentInput = '0';
@@ -1824,18 +1876,31 @@ For example: an event with Catering Beta for 15 guests requiring 2.5 hours of se
         closeCalculatorButton.addEventListener('click', toggleCalculator);
         makeDraggable(calculatorUI, calculatorDragHeader);
 
+        // Add a direct event listener for the equals button to ensure it works
+        const equalsButton = document.querySelector('.calc-button.equals');
+        if (equalsButton) {
+            equalsButton.addEventListener('click', function(e) {
+                console.log('Equals button clicked directly');
+                calculate();
+            });
+        }
 
+        // Add direct event listeners for all calculator buttons to ensure they work
         calcButtons.forEach(button => {
-            button.addEventListener('click', () => {
+            button.addEventListener('click', function() {
                 const value = button.dataset.calcValue;
                 const action = button.dataset.calcAction;
-
+                console.log('Calculator button clicked:', button.textContent, 'Value:', value, 'Action:', action);
+                
                 if (value !== undefined) { 
                     if (value === '.') { inputDecimal(); } 
                     else { inputDigit(value); }
                 } else if (action) { 
                     if (['+', '-', '*', '/'].includes(action)) { handleOperator(action); } 
-                    else if (action === 'equals') { calculate(); } 
+                    else if (action === 'equals') { 
+                        console.log('Equals action triggered');
+                        calculate(); 
+                    } 
                     else if (action === 'clear') { clearCalculator(); } 
                     else if (['m+', 'm-', 'mrc'].includes(action)) { handleMemory(action); } 
                     else if (['sqrt', 'percent', 'negate', 'backspace'].includes(action)) { handleSpecialFunction(action); }
@@ -1893,7 +1958,11 @@ For example: an event with Catering Beta for 15 guests requiring 2.5 hours of se
         document.addEventListener('keydown', handleKeyboardShortcuts);
 
         // --- Initial Load ---
-        showSetupScreen();
+        // Only initialize the setup screen if we're not in review mode
+        if (!urlParams.has('review')) {
+            showSetupScreen();
+        }
+
         updateCalcDisplay(); 
 
         // Update the review grid button click handler to not restart the timer
@@ -1942,6 +2011,79 @@ For example: an event with Catering Beta for 15 guests requiring 2.5 hours of se
             submitPerformanceBtn.removeEventListener('click', submitPerformanceData);
             // Add the listener
             submitPerformanceBtn.addEventListener('click', submitPerformanceData);
+        }
+
+        // Function to handle loading a past test for review
+        function loadPastTestForReview(resultId) {
+            setupScreen.classList.add('hidden');
+            
+            // Show a loading indicator
+            const loadingEl = document.createElement('div');
+            loadingEl.className = 'fixed inset-0 bg-white bg-opacity-80 flex items-center justify-center z-50';
+            loadingEl.innerHTML = `
+                <div class="text-center p-6 bg-white shadow-xl rounded-lg">
+                    <div class="spinner mx-auto mb-4"></div>
+                    <p class="text-gray-700 font-medium">Loading your test results...</p>
+                </div>
+            `;
+            document.body.appendChild(loadingEl);
+            
+            // Fetch the result from Firestore
+            db.collection("performanceSubmissions").doc(resultId)
+                .get()
+                .then((doc) => {
+                    if (!doc.exists) {
+                        alert("The requested test result could not be found.");
+                        window.location.href = "student_dashboard.html";
+                        return;
+                    }
+                    
+                    const resultData = doc.data();
+                    
+                    // Store the data in the appropriate variables
+                    userName = resultData.studentName || '';
+                    userGoal = resultData.goal || '';
+                    userFocusArea = resultData.focusArea || '';
+                    userAnswers = resultData.answers || new Array(questions.length).fill(null);
+                    questionTimes = resultData.questionTimes || new Array(questions.length).fill(0);
+                    flaggedQuestions = resultData.flaggedQuestions || new Array(questions.length).fill(false);
+                    practiceSessionStartTime = new Date(resultData.submissionTimestamp || Date.now());
+                    practiceSessionEndTime = new Date(practiceSessionStartTime.getTime() + 26 * 60 * 1000); // Estimate end time
+                    isReviewingFromResults = true;
+                    
+                    // Remove loading indicator
+                    document.body.removeChild(loadingEl);
+                    
+                    // Show the results screen with the data
+                    showResultsScreen();
+                    
+                    // Add a "Return to Results" button to the header
+                    const headerBar = document.querySelector('.header-bar');
+                    if (headerBar) {
+                        const returnButtonContainer = document.createElement('div');
+                        returnButtonContainer.className = 'absolute left-4';
+                        returnButtonContainer.innerHTML = `
+                            <button id="return-to-dashboard-results" class="bg-blue-500 text-white px-3 py-1 rounded text-sm flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                                </svg>
+                                Return to Results
+                            </button>
+                        `;
+                        headerBar.style.position = 'relative';
+                        headerBar.appendChild(returnButtonContainer);
+                        
+                        // Add event listener to the return button
+                        document.getElementById('return-to-dashboard-results').addEventListener('click', () => {
+                            window.location.href = "student_dashboard.html";
+                        });
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error loading test result:", error);
+                    alert("There was an error loading the test result. Please try again.");
+                    window.location.href = "student_dashboard.html";
+                });
         }
     }); // Closing bracket for DOMContentLoaded
     </script>
