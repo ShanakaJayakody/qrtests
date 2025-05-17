@@ -556,9 +556,9 @@
                 <button onclick="window.location.href='student_dashboard.html'" class="secondary-button px-6 py-2 w-full sm:w-auto">Return to Dashboard</button>
                 <button onclick="window.location.reload()" class="secondary-button px-6 py-2 w-full sm:w-auto">Try Again</button>
                 <div class="w-full sm:w-auto relative group">
-                    <button id="submit-performance-button" class="primary-button px-6 py-2 w-full">Save Reflection</button>
+                    <button id="submit-performance-button" class="primary-button px-6 py-2 w-full">Submit Reflections</button>
                     <div class="absolute left-0 right-0 -top-10 bg-blue-100 text-blue-800 text-xs p-1 rounded border border-blue-200 opacity-0 group-hover:opacity-100 transition-opacity">
-                        ↓ Optional: Save your reflection on this practice session
+                        ↓ Optional: Submit your reflection on this practice session
                     </div>
                 </div>
                 <button id="download-pdf-button" class="primary-button px-6 py-2 w-full sm:w-auto">Download Results PDF</button>
@@ -1193,7 +1193,7 @@ For example: an event with Catering Beta for 15 guests requiring 2.5 hours of se
             const submitButton = document.getElementById('submit-performance-button');
             if (submitButton) {
                 submitButton.disabled = false;
-                submitButton.textContent = 'Submit Performance to Admin';
+                submitButton.textContent = 'Submit Reflections';
                 submitButton.classList.remove('bg-green-500');
             }
         }
