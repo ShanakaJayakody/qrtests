@@ -756,8 +756,15 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
                         <p class="text-gray-700 font-medium">No test results found</p>
-                        <p class="text-gray-500 text-sm mt-2">Complete a practice test to see your results here</p>
-                        <button id="go-to-tests-button" class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors">Go to Tests</button>
+                        <p class="text-gray-500 text-sm mt-2">Complete a practice test to see your performance history here</p>
+                        <div class="mt-4 flex justify-center gap-3">
+                            <button id="go-to-tests-button" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                </svg>
+                                Take QR Test 1
+                            </button>
+                        </div>
                     </div>
                     
                     <div id="results-summary" class="hidden">
@@ -845,6 +852,13 @@
                                 Back to Results
                             </button>
                             <div class="flex gap-2">
+                                <button id="review-questions-button" class="text-sm px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 transition-colors flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    </svg>
+                                    Review Questions
+                                </button>
                                 <button id="download-result-pdf" class="text-sm px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors flex items-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -962,9 +976,13 @@
 
         // Initialize Firebase with better error handling
         try {
-            firebase.initializeApp(firebaseConfig);
-            const auth = firebase.auth();
-            console.log("Firebase initialized successfully");
+            // Check if Firebase is already initialized
+            if (!firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+            }
+            // Explicitly initialize Firestore
+            const db = firebase.firestore();
+            console.log("Firebase and Firestore initialized successfully");
         } catch (error) {
             console.error("Firebase initialization error:", error);
             // Show error message to user
@@ -1503,7 +1521,7 @@
 
         // Function to load user results from Firebase
         function loadUserResults() {
-            if (!firebase.auth().currentUser) return;
+            console.log("Loading user results...");
             
             const resultsLoading = document.getElementById('results-loading');
             const resultsError = document.getElementById('results-error');
@@ -1518,74 +1536,103 @@
             resultsSummary.classList.add('hidden');
             resultDetail.classList.add('hidden');
             
-            // Load results from Firebase
-            const db = firebase.firestore();
-            const userEmail = firebase.auth().currentUser.email;
-            const userName = firebase.auth().currentUser.displayName || userEmail;
+            // Check authentication
+            if (!firebase.auth().currentUser) {
+                console.log("No user logged in, cannot load results");
+                resultsLoading.classList.add('hidden');
+                resultsError.classList.remove('hidden');
+                return;
+            }
             
-            db.collection("performanceSubmissions")
-              .where("studentName", "==", userName)
-              .orderBy("submissionTimestamp", "desc")
-              .get()
-              .then((querySnapshot) => {
-                  resultsLoading.classList.add('hidden');
-                  
-                  if (querySnapshot.empty) {
-                      resultsEmpty.classList.remove('hidden');
-                      return;
-                  }
-                  
-                  // Process results
-                  const results = [];
-                  querySnapshot.forEach((doc) => {
-                      const data = doc.data();
-                      results.push({
-                          id: doc.id,
-                          ...data,
-                          date: new Date(data.submissionTimestamp || Date.now())
+            try {
+                // Check if Firestore is available
+                if (!firebase.firestore) {
+                    console.error("Firestore is not initialized");
+                    resultsLoading.classList.add('hidden');
+                    resultsError.classList.remove('hidden');
+                    return;
+                }
+                
+                const db = firebase.firestore();
+                const userEmail = firebase.auth().currentUser.email;
+                const userName = firebase.auth().currentUser.displayName || userEmail;
+                
+                console.log("Fetching results for user:", userName);
+                
+                db.collection("performanceSubmissions")
+                  .where("studentName", "==", userName)
+                  .orderBy("submissionTimestamp", "desc")
+                  .get()
+                  .then((querySnapshot) => {
+                      console.log("Query snapshot received, empty:", querySnapshot.empty);
+                      resultsLoading.classList.add('hidden');
+                      
+                      if (querySnapshot.empty) {
+                          resultsEmpty.classList.remove('hidden');
+                          return;
+                      }
+                      
+                      // Process results
+                      const results = [];
+                      querySnapshot.forEach((doc) => {
+                          const data = doc.data();
+                          results.push({
+                              id: doc.id,
+                              ...data,
+                              date: new Date(data.submissionTimestamp || Date.now())
+                          });
                       });
+                      
+                      console.log(`Found ${results.length} results`);
+                      
+                      if (results.length > 0) {
+                          updateResultsSummary(results);
+                          populateResultsTable(results);
+                          resultsSummary.classList.remove('hidden');
+                          
+                          // Add event listeners for filters and sorts
+                          const resultsFilter = document.getElementById('results-filter');
+                          const resultsSort = document.getElementById('results-sort');
+                          
+                          resultsFilter.addEventListener('change', () => {
+                              populateResultsTable(results);
+                          });
+                          
+                          resultsSort.addEventListener('change', () => {
+                              populateResultsTable(results);
+                          });
+                          
+                          // Load ChartJS if needed
+                          loadChartJSIfNeeded(() => {
+                              renderProgressChart(results);
+                          });
+                      } else {
+                          resultsEmpty.classList.remove('hidden');
+                      }
+                  })
+                  .catch((error) => {
+                      console.error("Error fetching results:", error);
+                      resultsLoading.classList.add('hidden');
+                      resultsError.classList.remove('hidden');
                   });
-                  
-                  updateResultsSummary(results);
-                  populateResultsTable(results);
-                  
-                  // Add click handlers for go to tests button
-                  document.getElementById('go-to-tests-button').addEventListener('click', () => {
-                      showContent('qr');
-                      setActiveTab(navTests);
-                  });
-                  
-                  // Add event listeners for filters and sorts
-                  const resultsFilter = document.getElementById('results-filter');
-                  const resultsSort = document.getElementById('results-sort');
-                  
-                  resultsFilter.addEventListener('change', () => {
-                      populateResultsTable(results);
-                  });
-                  
-                  resultsSort.addEventListener('change', () => {
-                      populateResultsTable(results);
-                  });
-                  
-                  // Add event listener for back to results button
-                  document.getElementById('back-to-results-list').addEventListener('click', () => {
-                      resultDetail.classList.add('hidden');
-                      resultsSummary.classList.remove('hidden');
-                  });
-                  
-                  // Load ChartJS if needed
-                  loadChartJSIfNeeded(() => {
-                      renderProgressChart(results);
-                  });
-              })
-              .catch((error) => {
-                  console.error("Error fetching results:", error);
-                  resultsLoading.classList.add('hidden');
-                  resultsError.classList.remove('hidden');
-              });
-              
-              // Add retry button event listener
-              document.getElementById('results-retry-button').addEventListener('click', loadUserResults);
+            } catch (error) {
+                console.error("Error in loadUserResults:", error);
+                resultsLoading.classList.add('hidden');
+                resultsError.classList.remove('hidden');
+            }
+            
+            // Add click handlers for buttons
+            document.getElementById('go-to-tests-button').addEventListener('click', () => {
+                showContent('qr');
+                setActiveTab(navTests);
+            });
+            
+            document.getElementById('back-to-results-list').addEventListener('click', () => {
+                resultDetail.classList.add('hidden');
+                resultsSummary.classList.remove('hidden');
+            });
+            
+            document.getElementById('results-retry-button').addEventListener('click', loadUserResults);
         }
         
         // Function to update results summary section
@@ -1800,6 +1847,11 @@
             // Set up PDF download
             document.getElementById('download-result-pdf').addEventListener('click', () => {
                 downloadResultPDF(result);
+            });
+
+            // Set up Review Questions button
+            document.getElementById('review-questions-button').addEventListener('click', () => {
+                reviewQuestionsFromResult(result);
             });
         }
         
@@ -2065,6 +2117,26 @@
             }
             
             doc.save(`${examName.replace(/\s+/g, '_').toLowerCase()}_results_${studentName.replace(/\s+/g, '_').toLowerCase()}.pdf`);
+        }
+
+        // Function to redirect to the QR Test for reviewing questions from a past result
+        function reviewQuestionsFromResult(result) {
+            // Store the result ID in localStorage for retrieval in the QR Test
+            localStorage.setItem('reviewResultId', result.id);
+            
+            // Store the return page information
+            localStorage.setItem('returnToResultsPage', 'true');
+            
+            // Determine which test to redirect to based on the exam name
+            let testUrl = 'QR Test 1.html';
+            if (result.examName === 'QR Test 2') {
+                testUrl = 'QR Test 2.html';
+            } else if (result.examName === 'QR Test 3') {
+                testUrl = 'QR Test 3.html';
+            }
+            
+            // Redirect to the QR Test with a query parameter
+            window.location.href = `${testUrl}?review=${result.id}`;
         }
     </script>
 </body>
