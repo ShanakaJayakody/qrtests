@@ -749,7 +749,10 @@
                 tableHTML += `
                     <tr>
                         <td class="px-6 py-4 whitespace-nowrap">${submissionDate}</td>
-                        <td class="px-6 py-4">${item.studentName || 'N/A'}</td>
+                        <td class="px-6 py-4">
+                            <div class="font-medium">${item.studentName || 'N/A'}</div>
+                            ${item.studentEmail ? `<div class="text-xs text-gray-500 mt-1">${item.studentEmail}</div>` : ''}
+                        </td>
                         <td class="px-6 py-4">${item.studentEmail || 'N/A'}</td>
                         <td class="px-6 py-4">${item.examName || 'N/A'}</td>
                         <td class="px-6 py-4">${scoreText}</td>
