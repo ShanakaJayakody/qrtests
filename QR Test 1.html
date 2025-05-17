@@ -420,9 +420,6 @@
                  </p>
             </div>
             <div class="space-y-4 w-full max-w-md">
-                <div class="p-3 bg-blue-50 rounded-md border border-blue-100 mb-4">
-                    <p class="text-sm text-blue-800">Welcome! Your name will be automatically recorded from your login.</p>
-                </div>
                 <div>
                     <label for="goal" class="block text-sm font-medium text-gray-700">Goal (Score out of 36):</label>
                     <input type="number" id="goal" name="goal" min="0" max="36" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="e.g., 28">
@@ -595,6 +592,15 @@ document.addEventListener('DOMContentLoaded', function() {
         // Check for review mode from URL parameters
         const urlParams = new URLSearchParams(window.location.search);
         const reviewParam = urlParams.get('review');
+        
+        // Check if user is logged in via Firebase
+        firebase.auth().onAuthStateChanged(user => {
+            if (user) {
+                console.log("User is logged in:", user.displayName, user.email);
+            } else {
+                console.log("No user is logged in");
+            }
+        });
         
         if (reviewParam) {
             // We're in review mode - load the past test data
@@ -1846,15 +1852,19 @@ For example: an event with Catering Beta for 15 guests requiring 2.5 hours of se
 
         // --- Event Listeners ---
         startButton.addEventListener('click', () => {
+            console.log("Start button clicked - starting test");
+            
             // Get user info from Firebase Auth if available
             if (firebase.auth && firebase.auth().currentUser) {
                 const currentUser = firebase.auth().currentUser;
                 userName = currentUser.displayName || currentUser.email || '';
                 // Store email to be used later in submission
                 userEmail = currentUser.email || '';
+                console.log("Using user info from Firebase:", userName, userEmail);
             } else {
                 userName = '';
                 userEmail = '';
+                console.log("No user logged in - using empty user info");
             }
             
             userGoal = goalInput.value.trim();
