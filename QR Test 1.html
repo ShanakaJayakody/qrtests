@@ -430,7 +430,7 @@
                 </div>
             </div>
             <div class="mt-8 text-center space-y-3">
-                <button id="start-button" class="primary-button text-lg px-8 py-3" onclick="startTest()">Begin</button>
+                <button id="start-button" class="primary-button text-lg px-8 py-3">Begin</button>
                 <button onclick="window.location.href='student_dashboard.html'" class="secondary-button text-lg px-8 py-3">Return to Dashboard</button>
             </div>
         </div>
@@ -574,47 +574,13 @@
     </div>
 
     <script>
-function startTest() {
-    console.log("startTest() function called directly");
-    
-    // Get user info from Firebase Auth if available
-    if (firebase.auth && firebase.auth().currentUser) {
-        const currentUser = firebase.auth().currentUser;
-        userName = currentUser.displayName || currentUser.email || '';
-        // Store email to be used later in submission
-        userEmail = currentUser.email || '';
-        console.log("Using user info from Firebase:", userName, userEmail);
-    } else {
-        userName = '';
-        userEmail = '';
-        console.log("No user logged in - using empty user info");
-    }
-    
-    userGoal = document.getElementById('goal').value.trim();
-    userFocusArea = document.getElementById('focus-area').value.trim();
-    timeLeft = 26 * 60;
-    userAnswers = new Array(questions.length).fill(null);
-    questionTimes = new Array(questions.length).fill(0);
-    flaggedQuestions = new Array(questions.length).fill(false);
-    questionStartTime = null;
-    currentQuestionIndex = 0;
-    isReviewingFromResults = false;
-    isFilteringFlagged = false;
-    currentlyDisplayedPassageIndex = -1;
-    practiceSessionEndTime = null;
-    showPracticeSessionScreen();
-    startTimer();
-    loadQuestion(0);
-    populateNavigator();
-}
-
 document.addEventListener('DOMContentLoaded', function() {
         // --- Firebase Configuration ---
         const firebaseConfig = {
           apiKey: "AIzaSyASKsaFFTZ-finv2d5egR9K_mZNstEwdns",
           authDomain: "mwp-qr-test-page.firebaseapp.com",
           projectId: "mwp-qr-test-page",
-          storageBucket: "mwp-qr-test-page.appspot.com", // Corrected from firebasestorage.app to appspot.com for compatibility with firestore
+          storageBucket: "mwp-qr-test-page.appspot.com", 
           messagingSenderId: "309084045110",
           appId: "1:309084045110:web:b09ca0fdff84b094963d97",
           measurementId: "G-4M3ED641M9"
@@ -636,6 +602,41 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         
+        // Expose startTest function to global window object so it can be called from onclick
+        window.startTest = function() {
+            console.log("startTest() function called directly");
+            
+            // Get user info from Firebase Auth if available
+            if (firebase.auth && firebase.auth().currentUser) {
+                const currentUser = firebase.auth().currentUser;
+                userName = currentUser.displayName || currentUser.email || '';
+                // Store email to be used later in submission
+                userEmail = currentUser.email || '';
+                console.log("Using user info from Firebase:", userName, userEmail);
+            } else {
+                userName = '';
+                userEmail = '';
+                console.log("No user logged in - using empty user info");
+            }
+            
+            userGoal = document.getElementById('goal').value.trim();
+            userFocusArea = document.getElementById('focus-area').value.trim();
+            timeLeft = 26 * 60;
+            userAnswers = new Array(questions.length).fill(null);
+            questionTimes = new Array(questions.length).fill(0);
+            flaggedQuestions = new Array(questions.length).fill(false);
+            questionStartTime = null;
+            currentQuestionIndex = 0;
+            isReviewingFromResults = false;
+            isFilteringFlagged = false;
+            currentlyDisplayedPassageIndex = -1;
+            practiceSessionEndTime = null;
+            showPracticeSessionScreen();
+            startTimer();
+            loadQuestion(0);
+            populateNavigator();
+        };
+        
         if (reviewParam) {
             // We're in review mode - load the past test data
             loadPastTestForReview(reviewParam);
@@ -643,7 +644,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Regular test mode - continue with normal setup
             showSetupScreen();
         }
-        
+
         // --- Data ---
         const passages = [
             `The table shows the fees for different membership types and activities at a fitness centre.
@@ -1886,37 +1887,8 @@ For example: an event with Catering Beta for 15 guests requiring 2.5 hours of se
 
         // --- Event Listeners ---
         startButton.addEventListener('click', () => {
-            console.log("Start button clicked - starting test");
-            
-            // Get user info from Firebase Auth if available
-            if (firebase.auth && firebase.auth().currentUser) {
-                const currentUser = firebase.auth().currentUser;
-                userName = currentUser.displayName || currentUser.email || '';
-                // Store email to be used later in submission
-                userEmail = currentUser.email || '';
-                console.log("Using user info from Firebase:", userName, userEmail);
-            } else {
-                userName = '';
-                userEmail = '';
-                console.log("No user logged in - using empty user info");
-            }
-            
-            userGoal = goalInput.value.trim();
-            userFocusArea = focusAreaInput.value.trim();
-            timeLeft = 26 * 60;
-            userAnswers = new Array(questions.length).fill(null);
-            questionTimes = new Array(questions.length).fill(0);
-            flaggedQuestions = new Array(questions.length).fill(false);
-            questionStartTime = null;
-            currentQuestionIndex = 0;
-            isReviewingFromResults = false;
-            isFilteringFlagged = false;
-            currentlyDisplayedPassageIndex = -1;
-            practiceSessionEndTime = null;
-            showPracticeSessionScreen();
-            startTimer();
-            loadQuestion(0);
-            populateNavigator();
+            console.log("Start button event listener triggered, calling window.startTest()");
+            window.startTest();
         });
 
         nextButton.addEventListener('click', showNextQuestion);
