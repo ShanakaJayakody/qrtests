@@ -687,6 +687,46 @@ document.addEventListener('DOMContentLoaded', function() {
         // Add a debounce flag for submissions
         let isSubmittingReflection = false;
         
+        // --- Elements ---
+        const appContainer = document.getElementById('app-container');
+        const setupScreen = document.getElementById('setup-screen');
+        const practiceSessionScreen = document.getElementById('practice-session-screen');
+        const reviewScreen = document.getElementById('review-screen');
+        const resultsScreen = document.getElementById('results-screen');
+        const navigatorModal = document.getElementById('navigator-modal');
+        const startButton = document.getElementById('start-button');
+        const prevButton = document.getElementById('prev-button');
+        const nextButton = document.getElementById('next-button');
+        const navigatorButton = document.getElementById('navigator-button');
+        const closeModalButton = document.getElementById('close-modal-button');
+        const endPracticeSessionButton = document.getElementById('end-practice-session-button');
+        const endPracticeSessionButtonFooter = document.getElementById('end-practice-session-button-footer');
+        const backToResultsButton = document.getElementById('back-to-results-button');
+        const flagButton = document.getElementById('flag-button');
+        const questionNumberInfoEl = document.getElementById('question-number-info');
+        const timerEl = document.getElementById('timer');
+        const reviewGrid = document.getElementById('review-grid');
+        const navigatorGrid = document.getElementById('navigator-grid');
+        const scoreEl = document.getElementById('score');
+        const totalQuestionsResultsEl = document.getElementById('total-questions-results');
+        const timeTakenEl = document.getElementById('time-taken');
+        const resultsDetailsGrid = document.getElementById('results-details-grid');
+        const goalInput = document.getElementById('goal');
+        const focusAreaInput = document.getElementById('focus-area');
+        const practiceSessionTitleEl = document.getElementById('practice-session-title');
+        const filterFlaggedButton = document.getElementById('filter-flagged-button');
+        const setupQuestionCountEl = document.getElementById('setup-question-count');
+        const setupTimeLimitEl = document.getElementById('setup-time-limit');
+        const reflectionText = document.getElementById('reflection-text');
+        const downloadPdfButton = document.getElementById('download-pdf-button');
+        const focusRatingInput = document.getElementById('focus-rating');
+        const calculatorToggleButton = document.getElementById('calculator-toggle-button');
+        const calculatorUI = document.getElementById('calculator-ui');
+        const calcDisplay = document.getElementById('calc-display');
+        const calcButtons = document.querySelectorAll('.calc-button');
+        const closeCalculatorButton = document.getElementById('close-calculator-button');
+        const calculatorDragHeader = document.getElementById('calculator-drag-header');
+
         // --- Data ---
         const passages = [
             `The table shows the fees for different membership types and activities at a fitness centre.
@@ -782,47 +822,6 @@ For example: an event with Catering Beta for 15 guests requiring 2.5 hours of se
             // Regular test mode - continue with normal setup
             showSetupScreen();
         }
-
-        // --- Elements ---
-        const appContainer = document.getElementById('app-container');
-        const setupScreen = document.getElementById('setup-screen');
-        const practiceSessionScreen = document.getElementById('practice-session-screen');
-        const reviewScreen = document.getElementById('review-screen');
-        const resultsScreen = document.getElementById('results-screen');
-        const navigatorModal = document.getElementById('navigator-modal');
-        const startButton = document.getElementById('start-button');
-        const prevButton = document.getElementById('prev-button');
-        const nextButton = document.getElementById('next-button');
-        const navigatorButton = document.getElementById('navigator-button');
-        const closeModalButton = document.getElementById('close-modal-button');
-        const endPracticeSessionButton = document.getElementById('end-practice-session-button');
-        const endPracticeSessionButtonFooter = document.getElementById('end-practice-session-button-footer');
-        const backToResultsButton = document.getElementById('back-to-results-button');
-        const flagButton = document.getElementById('flag-button');
-        const questionNumberInfoEl = document.getElementById('question-number-info');
-        const timerEl = document.getElementById('timer');
-        const reviewGrid = document.getElementById('review-grid');
-        const navigatorGrid = document.getElementById('navigator-grid');
-        const scoreEl = document.getElementById('score');
-        const totalQuestionsResultsEl = document.getElementById('total-questions-results');
-        const timeTakenEl = document.getElementById('time-taken');
-        const resultsDetailsGrid = document.getElementById('results-details-grid');
-        const goalInput = document.getElementById('goal');
-        const focusAreaInput = document.getElementById('focus-area');
-        const practiceSessionTitleEl = document.getElementById('practice-session-title');
-        const filterFlaggedButton = document.getElementById('filter-flagged-button');
-        const setupQuestionCountEl = document.getElementById('setup-question-count');
-        const setupTimeLimitEl = document.getElementById('setup-time-limit');
-        const reflectionText = document.getElementById('reflection-text');
-        const downloadPdfButton = document.getElementById('download-pdf-button');
-        const focusRatingInput = document.getElementById('focus-rating');
-        const calculatorToggleButton = document.getElementById('calculator-toggle-button');
-        const calculatorUI = document.getElementById('calculator-ui');
-        const calcDisplay = document.getElementById('calc-display');
-        const calcButtons = document.querySelectorAll('.calc-button');
-        const closeCalculatorButton = document.getElementById('close-calculator-button');
-        const calculatorDragHeader = document.getElementById('calculator-drag-header');
-
 
         // --- Functions ---
         function startTimer() {
@@ -2189,6 +2188,25 @@ For example: an event with Catering Beta for 15 guests requiring 2.5 hours of se
             populateNavigator();
         });
         
+        // Function to initialize the application - moved to the end to ensure all functions are defined
+        function initializeApp() {
+            // Initialize arrays with questions.length
+            userAnswers = new Array(questions.length).fill(null);
+            questionTimes = new Array(questions.length).fill(0);
+            flaggedQuestions = new Array(questions.length).fill(false);
+            
+            // Check for review mode and initialize appropriate screen
+            if (reviewParam) {
+                // We're in review mode - load the past test data
+                loadPastTestForReview(reviewParam);
+            } else {
+                // Regular test mode - continue with normal setup
+                showSetupScreen();
+            }
+        }
+        
+        // Actually initialize the app now that all functions and DOM elements are defined
+        initializeApp();
     }); // Closing bracket for DOMContentLoaded
     </script>
 </body>
