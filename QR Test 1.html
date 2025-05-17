@@ -420,9 +420,8 @@
                  </p>
             </div>
             <div class="space-y-4 w-full max-w-md">
-                <div>
-                    <label for="name" class="block text-sm font-medium text-gray-700">Name:</label>
-                    <input type="text" id="name" name="name" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="Enter your name">
+                <div class="p-3 bg-blue-50 rounded-md border border-blue-100 mb-4">
+                    <p class="text-sm text-blue-800">Welcome! Your name will be automatically recorded from your login.</p>
                 </div>
                 <div>
                     <label for="goal" class="block text-sm font-medium text-gray-700">Goal (Score out of 36):</label>
@@ -693,7 +692,7 @@ For example: an event with Catering Beta for 15 guests requiring 2.5 hours of se
         let timerInterval;
         let timeLeft = 26 * 60; 
         let practiceSessionStartTime; let practiceSessionEndTime;
-        let userName = ''; let userGoal = ''; let userFocusArea = '';
+        let userName = ''; let userEmail = ''; let userGoal = ''; let userFocusArea = '';
         let isReviewingFromResults = false;
         let questionStartTime = null;
         let questionTimes = new Array(questions.length).fill(0);
@@ -739,7 +738,6 @@ For example: an event with Catering Beta for 15 guests requiring 2.5 hours of se
         const totalQuestionsResultsEl = document.getElementById('total-questions-results');
         const timeTakenEl = document.getElementById('time-taken');
         const resultsDetailsGrid = document.getElementById('results-details-grid');
-        const nameInput = document.getElementById('name');
         const goalInput = document.getElementById('goal');
         const focusAreaInput = document.getElementById('focus-area');
         const practiceSessionTitleEl = document.getElementById('practice-session-title');
@@ -1015,18 +1013,36 @@ For example: an event with Catering Beta for 15 guests requiring 2.5 hours of se
         }
 
         function showSetupScreen() {
+            userName = '';
+            userEmail = '';
+            userGoal = '';
+            userFocusArea = '';
+            
+            // Check for Firebase auth user
+            if (firebase.auth && firebase.auth().currentUser) {
+                const currentUser = firebase.auth().currentUser;
+                userName = currentUser.displayName || currentUser.email || '';
+                userEmail = currentUser.email || '';
+            }
+            
             setupScreen.classList.remove('hidden');
             practiceSessionScreen.classList.add('hidden');
             reviewScreen.classList.add('hidden');
+            reviewScreen.classList.remove('flex');
             resultsScreen.classList.add('hidden');
             appContainer.classList.remove('flex', 'flex-col');
             currentlyDisplayedPassageIndex = -1;
+            
             if (setupQuestionCountEl) setupQuestionCountEl.textContent = "36";
             if (setupTimeLimitEl) setupTimeLimitEl.textContent = `26 minutes`;
             if (goalInput) {
                 goalInput.max = 36;
+                goalInput.value = userGoal;
                 const goalLabel = document.querySelector('label[for="goal"]');
                 if (goalLabel) goalLabel.textContent = `Goal (Score out of 36):`;
+            }
+            if (focusAreaInput) {
+                focusAreaInput.value = userFocusArea;
             }
         }
 
@@ -1407,13 +1423,12 @@ For example: an event with Catering Beta for 15 guests requiring 2.5 hours of se
                     const db = firebase.firestore();
                     
                     // Get current authenticated user data if available
-                    let userEmail = '';
                     let userDisplayName = '';
                     
                     if (firebase.auth && firebase.auth().currentUser) {
                         const currentUser = firebase.auth().currentUser;
-                        userEmail = currentUser.email || '';
                         userDisplayName = currentUser.displayName || '';
+                        // Note: we're already storing userEmail from when the test started
                     }
                     
                     // Instead of querying for existing document, create a new one with both test results and reflection
@@ -1831,7 +1846,17 @@ For example: an event with Catering Beta for 15 guests requiring 2.5 hours of se
 
         // --- Event Listeners ---
         startButton.addEventListener('click', () => {
-            userName = nameInput.value.trim();
+            // Get user info from Firebase Auth if available
+            if (firebase.auth && firebase.auth().currentUser) {
+                const currentUser = firebase.auth().currentUser;
+                userName = currentUser.displayName || currentUser.email || '';
+                // Store email to be used later in submission
+                userEmail = currentUser.email || '';
+            } else {
+                userName = '';
+                userEmail = '';
+            }
+            
             userGoal = goalInput.value.trim();
             userFocusArea = focusAreaInput.value.trim();
             timeLeft = 26 * 60;
