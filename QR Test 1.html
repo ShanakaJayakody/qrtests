@@ -623,9 +623,12 @@ document.addEventListener('DOMContentLoaded', function() {
             userGoal = document.getElementById('goal').value.trim();
             userFocusArea = document.getElementById('focus-area').value.trim();
             timeLeft = 26 * 60;
-            userAnswers = new Array(questions.length).fill(null);
-            questionTimes = new Array(questions.length).fill(0);
-            flaggedQuestions = new Array(questions.length).fill(false);
+            
+            // Reset arrays
+            userAnswers.fill(null);
+            questionTimes.fill(0);
+            flaggedQuestions.fill(false);
+            
             questionStartTime = null;
             currentQuestionIndex = 0;
             isReviewingFromResults = false;
@@ -638,11 +641,47 @@ document.addEventListener('DOMContentLoaded', function() {
             populateNavigator();
         };
         
+        // --- State Variables ---
+        // Define all state variables before any functions are called to avoid reference errors
+        let currentQuestionIndex = 0;
+        let userAnswers;
+        let timerInterval;
+        let timeLeft = 26 * 60; 
+        let practiceSessionStartTime;
+        let practiceSessionEndTime;
+        let userName = '';
+        let userEmail = '';
+        let userGoal = '';
+        let userFocusArea = '';
+        let isReviewingFromResults = false;
+        let questionStartTime = null;
+        let questionTimes;
+        let flaggedQuestions;
+        let isFilteringFlagged = false;
+        let currentlyDisplayedPassageIndex = -1;
+        
+        // Calculator State
+        let calcCurrentInput = '0';
+        let calcPreviousInput = '';
+        let calcOperator = null;
+        let calcMemory = 0;
+        let calcShouldResetDisplay = false; 
+        let calcMrcPressedOnce = false; 
+        let isDraggingCalculator = false;
+        let calculatorOffsetX, calculatorOffsetY;
+        
+        // Add a debounce flag for submissions
+        let isSubmittingReflection = false;
+        
         if (reviewParam) {
             // We're in review mode - load the past test data
             loadPastTestForReview(reviewParam);
         } else {
             // Regular test mode - continue with normal setup
+            // Initialize arrays based on questions length
+            userAnswers = new Array(questions.length).fill(null);
+            questionTimes = new Array(questions.length).fill(0);
+            flaggedQuestions = new Array(questions.length).fill(false);
             showSetupScreen();
         }
 
@@ -727,34 +766,6 @@ For example: an event with Catering Beta for 15 guests requiring 2.5 hours of se
             { passageIndex: 15, text: "A flight departs from Japan at 11:00 PM on Friday, heading to Morocco. If the flight duration is 14 hours, what time and day will it be in Morocco upon arrival?", options: ["Saturday 4:00 AM", "Saturday 12:00 PM", "Saturday 8:00 PM", "Sunday 1:00 AM", "Can't tell"], correctAnswer: "A", explanation: "From the timezone chart, Japan is UTC+9 and Morocco is UTC+1.\nThe time difference is 9 - 1 = 8 hours.\nJapan is 8 hours ahead of Morocco.\nIf the plane departs Japan at 11:00 PM Friday and flies for 14 hours, it arrives at:\n11:00 PM Friday (Japan) + 14 hours = 1:00 PM Saturday (Japan)\nConverting to Morocco time: 1:00 PM Saturday (Japan) - 8 hours = 5:00 AM Saturday (Morocco)\nAdding 3 hours (based on distance and time zones): 8:00 PM Saturday." },
             { passageIndex: 15, text: "An online conference is scheduled to start at 3:00 PM GMT. Maria is in Argentina and wants to join 30 minutes before the official start to test her connection. What local time should Maria log in?", options: ["11:30 AM", "12:00 PM", "12:30 PM", "5:30 PM", "Can't tell"], correctAnswer: "A", explanation: "From the timezone chart, GMT is UTC+0 and Argentina is UTC-3.\nThe time difference is 0 - (-3) = 3 hours.\nArgentina is 3 hours behind GMT.\nSo 3:00 PM GMT would be 3:00 PM - 3 hours = 12:00 PM in Argentina.\nSince Maria wants to join 30 minutes before, she should log in at 12:00 PM - 30 minutes = 11:30 AM Argentina time." }
         ];
-
-        // --- State ---
-        let currentQuestionIndex = 0;
-        let userAnswers = new Array(questions.length).fill(null);
-        let timerInterval;
-        let timeLeft = 26 * 60; 
-        let practiceSessionStartTime; let practiceSessionEndTime;
-        let userName = ''; let userEmail = ''; let userGoal = ''; let userFocusArea = '';
-        let isReviewingFromResults = false;
-        let questionStartTime = null;
-        let questionTimes = new Array(questions.length).fill(0);
-        let flaggedQuestions = new Array(questions.length).fill(false);
-        let isFilteringFlagged = false;
-        let currentlyDisplayedPassageIndex = -1;
-
-        // --- Calculator State ---
-        let calcCurrentInput = '0';
-        let calcPreviousInput = '';
-        let calcOperator = null;
-        let calcMemory = 0;
-        let calcShouldResetDisplay = false; 
-        let calcMrcPressedOnce = false; 
-        let isDraggingCalculator = false;
-        let calculatorOffsetX, calculatorOffsetY;
-
-        // Add a debounce flag for submissions
-        let isSubmittingReflection = false;
-
 
         // --- Elements ---
         const appContainer = document.getElementById('app-container');
