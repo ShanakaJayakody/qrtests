@@ -570,6 +570,8 @@
 
         // Start test function to be called from the setup screen
         function startTest() {
+            console.log("Starting test...");
+            
             // Get user info from Firebase Auth if available
             if (firebase.auth && firebase.auth().currentUser) {
                 const currentUser = firebase.auth().currentUser;
@@ -633,13 +635,281 @@
 
         // Load passage and question
         function loadQuestion(index) {
-            // Implement this function to load the question and passage
-            // You would reference the passages and questions data here
+            console.log("Loading question:", index);
+            
+            if (index < 0 || index >= passages.length * 4) {
+                console.error("Question index out of bounds:", index);
+                return;
+            }
+            
+            currentQuestionIndex = index;
+            
+            // Record time spent on the previous question
+            if (questionStartTime && !isReviewingFromResults) {
+                const timeSpent = Date.now() - questionStartTime;
+                questionTimes[index] = (questionTimes[index] || 0) + timeSpent;
+            }
+            
+            // Start timing for this question
+            questionStartTime = Date.now();
+            
+            // Update question counter
+            questionCounterEl.textContent = `Question ${index + 1} of ${passages.length * 4}`;
+            
+            // Update UI buttons
+            prevButton.disabled = index === 0;
+            nextButton.disabled = index === passages.length * 4 - 1;
+            updateFlagButtonAppearance();
+            
+            // Load passage
+            const passageIndex = Math.floor(index / 4);
+            const passage = passages[passageIndex];
+            const passageColumn = document.querySelector('.passage-column');
+            if (passageColumn) {
+                passageColumn.innerHTML = `<div class="passage-text">${passage.text}</div>`;
+            }
+            
+            // Load question
+            const questionIndex = index % 4;
+            const question = passage.questions[questionIndex];
+            const questionColumn = document.querySelector('.question-column');
+            
+            if (questionColumn) {
+                let optionsHTML = '';
+                
+                question.options.forEach((option, i) => {
+                    const letter = String.fromCharCode(65 + i); // A, B, C, D
+                    const isSelected = userAnswers[index] === letter;
+                    
+                    optionsHTML += `
+                        <label class="option-label ${isSelected ? 'selected-answer' : ''}">
+                            <input type="radio" name="question-${index}" value="${letter}" ${isSelected ? 'checked' : ''}>
+                            <span class="font-medium">${letter}.</span> ${option}
+                        </label>
+                    `;
+                });
+                
+                questionColumn.innerHTML = `
+                    <h3 class="text-base font-medium mb-4">${question.text}</h3>
+                    <div class="options-container">
+                        ${optionsHTML}
+                    </div>
+                `;
+                
+                // Add event listeners to the options
+                const optionLabels = questionColumn.querySelectorAll('.option-label');
+                optionLabels.forEach(label => {
+                    label.addEventListener('click', function() {
+                        const input = this.querySelector('input[type="radio"]');
+                        if (input) {
+                            userAnswers[index] = input.value;
+                            optionLabels.forEach(l => l.classList.remove('selected-answer'));
+                            this.classList.add('selected-answer');
+                            updateNavigatorButtons();
+                        }
+                    });
+                });
+            }
+        }
+
+        function updateFlagButtonAppearance() {
+            const isFlagged = flaggedQuestions[currentQuestionIndex];
+            flagButton.textContent = isFlagged ? 'Unflag' : 'Flag Question';
+            flagButton.classList.toggle('flagged', isFlagged);
+        }
+
+        function toggleFlag() {
+            if (isReviewingFromResults) return;
+            
+            flaggedQuestions[currentQuestionIndex] = !flaggedQuestions[currentQuestionIndex];
+            updateFlagButtonAppearance();
+            updateNavigatorButtons();
+        }
+
+        function populateNavigator() {
+            if (!navigatorGrid) return;
+            
+            navigatorGrid.innerHTML = '';
+            
+            for (let i = 0; i < passages.length * 4; i++) {
+                const button = document.createElement('button');
+                button.textContent = i + 1;
+                button.classList.add('py-2', 'px-1', 'border', 'border-gray-300', 'rounded-md', 'text-center', 'transition', 'duration-150', 'ease-in-out', 'text-sm', 'hover:bg-gray-100');
+                button.dataset.questionIndex = i;
+                
+                if (userAnswers[i]) button.classList.add('nav-answered');
+                if (i === currentQuestionIndex) button.classList.add('nav-current');
+                if (flaggedQuestions[i]) button.classList.add('nav-flagged');
+                
+                button.addEventListener('click', function() {
+                    navigatorModal.classList.remove('flex');
+                    navigatorModal.classList.add('hidden');
+                    const targetIndex = parseInt(this.dataset.questionIndex, 10);
+                    loadQuestion(targetIndex);
+                });
+                
+                navigatorGrid.appendChild(button);
+            }
+        }
+
+        function updateNavigatorButtons() {
+            if (!navigatorGrid) return;
+            
+            const buttons = navigatorGrid.querySelectorAll('button');
+            buttons.forEach(button => {
+                const index = parseInt(button.dataset.questionIndex, 10);
+                button.classList.remove('nav-answered', 'nav-current', 'nav-flagged');
+                if (userAnswers[index]) button.classList.add('nav-answered');
+                if (index === currentQuestionIndex) button.classList.add('nav-current');
+                if (flaggedQuestions[index]) button.classList.add('nav-flagged');
+            });
         }
 
         // Event listeners
         if (startButton) {
             startButton.addEventListener('click', startTest);
+        }
+        
+        if (flagButton) {
+            flagButton.addEventListener('click', toggleFlag);
+        }
+        
+        if (prevButton) {
+            prevButton.addEventListener('click', function() {
+                if (currentQuestionIndex > 0) {
+                    loadQuestion(currentQuestionIndex - 1);
+                }
+            });
+        }
+        
+        if (nextButton) {
+            nextButton.addEventListener('click', function() {
+                if (currentQuestionIndex < passages.length * 4 - 1) {
+                    loadQuestion(currentQuestionIndex + 1);
+                }
+            });
+        }
+        
+        if (navigatorButton) {
+            navigatorButton.addEventListener('click', function() {
+                navigatorModal.classList.add('flex');
+                populateNavigator();
+            });
+        }
+        
+        if (closeModalButton) {
+            closeModalButton.addEventListener('click', function() {
+                navigatorModal.classList.remove('flex');
+                navigatorModal.classList.add('hidden');
+            });
+        }
+        
+        if (endPracticeSessionButton || endPracticeSessionButtonFooter) {
+            const endSession = function() {
+                if (confirm('Are you sure you want to end this practice session? Your progress will be saved.')) {
+                    endPracticeSessionAndShowResults();
+                }
+            };
+            
+            if (endPracticeSessionButton) {
+                endPracticeSessionButton.addEventListener('click', endSession);
+            }
+            
+            if (endPracticeSessionButtonFooter) {
+                endPracticeSessionButtonFooter.addEventListener('click', endSession);
+            }
+        }
+
+        function endPracticeSessionAndShowResults() {
+            // Record time spent on the current question
+            if (questionStartTime) {
+                const timeSpent = Date.now() - questionStartTime;
+                questionTimes[currentQuestionIndex] = (questionTimes[currentQuestionIndex] || 0) + timeSpent;
+                questionStartTime = null;
+            }
+            
+            practiceSessionEndTime = new Date();
+            clearInterval(timerInterval);
+            
+            // Show results screen
+            showResultsScreen();
+        }
+        
+        function showResultsScreen() {
+            practiceSessionScreen.classList.add('hidden');
+            reviewScreen.classList.add('hidden');
+            reviewScreen.classList.remove('flex');
+            resultsScreen.classList.remove('hidden');
+            resultsScreen.classList.add('flex');
+            setupScreen.classList.add('hidden');
+            
+            // Calculate score
+            let score = 0;
+            for (let i = 0; i < userAnswers.length; i++) {
+                const passageIndex = Math.floor(i / 4);
+                const questionIndex = i % 4;
+                const question = passages[passageIndex].questions[questionIndex];
+                
+                if (userAnswers[i] === question.correctAnswer) {
+                    score++;
+                }
+            }
+            
+            // Update results
+            scoreEl.textContent = score;
+            totalQuestionsResultsEl.textContent = passages.length * 4;
+            
+            // Calculate time taken
+            const timeInMs = practiceSessionEndTime - practiceSessionStartTime;
+            const minutes = Math.floor(timeInMs / 60000);
+            const seconds = Math.floor((timeInMs % 60000) / 1000);
+            timeTakenEl.textContent = `${minutes} min ${seconds < 10 ? '0' : ''}${seconds} sec`;
+            
+            // Populate results grid
+            populateResultsGrid();
+        }
+        
+        function populateResultsGrid() {
+            resultsDetailsGrid.innerHTML = '';
+            
+            for (let i = 0; i < userAnswers.length; i++) {
+                const passageIndex = Math.floor(i / 4);
+                const questionIndex = i % 4;
+                const question = passages[passageIndex].questions[questionIndex];
+                const userAnswer = userAnswers[i];
+                const correctAnswer = question.correctAnswer;
+                const isCorrect = userAnswer === correctAnswer;
+                
+                const summaryItem = document.createElement('div');
+                summaryItem.classList.add('result-summary-item');
+                
+                const summaryBox = document.createElement('div');
+                summaryBox.classList.add('result-summary-box');
+                
+                if (!userAnswer) {
+                    summaryBox.classList.add('not-answered-box');
+                } else {
+                    summaryBox.classList.add(isCorrect ? 'correct-box' : 'incorrect-box');
+                }
+                
+                const timeSpentMs = questionTimes[i] || 0;
+                const timeSpentSec = Math.round(timeSpentMs / 1000);
+                
+                const timeDisplay = document.createElement('span');
+                timeDisplay.classList.add('time-display-in-box');
+                timeDisplay.textContent = `${timeSpentSec}s`;
+                
+                summaryBox.appendChild(timeDisplay);
+                
+                const numberLabel = document.createElement('div');
+                numberLabel.classList.add('question-number-label');
+                numberLabel.textContent = `Q${i + 1}`;
+                
+                summaryItem.appendChild(summaryBox);
+                summaryItem.appendChild(numberLabel);
+                
+                resultsDetailsGrid.appendChild(summaryItem);
+            }
         }
 
         // Initialize the setup screen
