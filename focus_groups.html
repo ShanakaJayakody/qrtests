@@ -221,106 +221,132 @@
           measurementId: "G-4M3ED641M9"
         };
 
-        // Initialize Firebase
-        if (typeof firebase !== 'undefined' && !firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
-        const auth = firebase.auth();
-
-        // --- DOM Elements ---
-        const pageWrapper = document.getElementById('page-wrapper');
-        const authRedirectMessage = document.getElementById('auth-redirect-message');
-        const focusUserNameSpan = document.getElementById('focus-user-name');
-        const focusLogoutButton = document.getElementById('focus-logout-button');
-
-        const selectVRCard = document.getElementById('select-vr');
-        const selectDMCard = document.getElementById('select-dm');
-        const selectQRCard = document.getElementById('select-qr');
-        const allSectionCards = document.querySelectorAll('.section-card');
-
-        const practiceSetsContainer = document.getElementById('practice-sets-container');
-        const currentSectionTitleSpan = document.getElementById('current-section-title');
-        const practiceSetsGrid = document.getElementById('practice-sets-grid');
-
-        // --- Authentication Logic ---
-        auth.onAuthStateChanged(user => {
-            if (user) {
-                pageWrapper.classList.remove('hidden');
-                authRedirectMessage.classList.add('hidden');
-                focusUserNameSpan.textContent = user.displayName || user.email || 'Student';
-                localStorage.setItem('qrStudentName', user.displayName || user.email || ''); // Consistent with dashboard
-            } else {
-                pageWrapper.classList.add('hidden');
-                authRedirectMessage.classList.remove('hidden');
-                // Optionally, redirect to login page after a delay
-                // setTimeout(() => { window.location.href = 'student_dashboard.html'; }, 3000);
-            }
-        });
-
-        if (focusLogoutButton) {
-            focusLogoutButton.addEventListener('click', () => {
-                auth.signOut().then(() => {
-                    window.location.href = 'student_dashboard.html'; // Redirect to dashboard which will show login
-                }).catch(console.error);
-            });
-        }
-        
-        // --- Focus Group Logic ---
-        function displayPracticeSets(sectionName) {
-            currentSectionTitleSpan.textContent = sectionName;
-            practiceSetsGrid.innerHTML = ''; // Clear previous sets
-
-            // Create practice sets based on section
-            const shortName = sectionName.includes("Verbal") ? "VR" : 
-                             sectionName.includes("Decision") ? "DM" : 
-                             sectionName.includes("Quantitative") ? "QR" : "";
-            
-            for (let i = 1; i <= 50; i++) {
-                const setLink = document.createElement('a');
-                
-                // Add specific links for implemented focus groups
-                if (shortName === "QR" && i === 1) {
-                    setLink.href = "QR Test 1.html";
-                } else if (shortName === "VR" && i === 16) {
-                    setLink.href = "VR focus group16.html";
-                } else {
-                    // Placeholder links for future implementation
-                    setLink.href = "#";
-                    setLink.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        alert(`${sectionName} Practice Set ${i} is coming soon!`);
-                    });
+        // Wait for DOM and scripts to be loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Firebase only after scripts have loaded
+            function initializeFirebase() {
+                if (typeof firebase === 'undefined') {
+                    console.log("Firebase not loaded yet, trying again in 100ms");
+                    setTimeout(initializeFirebase, 100);
+                    return;
                 }
                 
-                setLink.classList.add('practice-set-link', 'focus-ring-blue');
-                setLink.textContent = `${shortName} Set ${i}`;
-                
-                practiceSetsGrid.appendChild(setLink);
+                try {
+                    // Initialize Firebase
+                    if (!firebase.apps.length) {
+                        firebase.initializeApp(firebaseConfig);
+                    }
+                    const auth = firebase.auth();
+                    
+                    // --- DOM Elements ---
+                    const pageWrapper = document.getElementById('page-wrapper');
+                    const authRedirectMessage = document.getElementById('auth-redirect-message');
+                    const focusUserNameSpan = document.getElementById('focus-user-name');
+                    const focusLogoutButton = document.getElementById('focus-logout-button');
+
+                    const selectVRCard = document.getElementById('select-vr');
+                    const selectDMCard = document.getElementById('select-dm');
+                    const selectQRCard = document.getElementById('select-qr');
+                    const allSectionCards = document.querySelectorAll('.section-card');
+
+                    const practiceSetsContainer = document.getElementById('practice-sets-container');
+                    const currentSectionTitleSpan = document.getElementById('current-section-title');
+                    const practiceSetsGrid = document.getElementById('practice-sets-grid');
+
+                    // --- Authentication Logic ---
+                    auth.onAuthStateChanged(user => {
+                        if (user) {
+                            pageWrapper.classList.remove('hidden');
+                            authRedirectMessage.classList.add('hidden');
+                            focusUserNameSpan.textContent = user.displayName || user.email || 'Student';
+                            localStorage.setItem('qrStudentName', user.displayName || user.email || ''); // Consistent with dashboard
+                        } else {
+                            pageWrapper.classList.add('hidden');
+                            authRedirectMessage.classList.remove('hidden');
+                            // Optionally, redirect to login page after a delay
+                            // setTimeout(() => { window.location.href = 'student_dashboard.html'; }, 3000);
+                        }
+                    });
+
+                    if (focusLogoutButton) {
+                        focusLogoutButton.addEventListener('click', () => {
+                            auth.signOut().then(() => {
+                                window.location.href = 'student_dashboard.html'; // Redirect to dashboard which will show login
+                            }).catch(console.error);
+                        });
+                    }
+                    
+                    // --- Focus Group Logic ---
+                    function displayPracticeSets(sectionName) {
+                        currentSectionTitleSpan.textContent = sectionName;
+                        practiceSetsGrid.innerHTML = ''; // Clear previous sets
+
+                        // Create practice sets based on section
+                        const shortName = sectionName.includes("Verbal") ? "VR" : 
+                                         sectionName.includes("Decision") ? "DM" : 
+                                         sectionName.includes("Quantitative") ? "QR" : "";
+                        
+                        for (let i = 1; i <= 50; i++) {
+                            const setLink = document.createElement('a');
+                            
+                            // Add specific links for implemented focus groups
+                            if (shortName === "QR" && i === 1) {
+                                setLink.href = "QR Test 1.html";
+                            } else if (shortName === "VR" && i === 16) {
+                                setLink.href = "VR focus group16.html";
+                            } else {
+                                // Placeholder links for future implementation
+                                setLink.href = "#";
+                                setLink.addEventListener('click', (e) => {
+                                    e.preventDefault();
+                                    alert(`${sectionName} Practice Set ${i} is coming soon!`);
+                                });
+                            }
+                            
+                            setLink.classList.add('practice-set-link', 'focus-ring-blue');
+                            setLink.textContent = `${shortName} Set ${i}`;
+                            
+                            practiceSetsGrid.appendChild(setLink);
+                        }
+                        
+                        practiceSetsContainer.classList.remove('hidden');
+                    }
+
+                    function setActiveSectionCard(selectedCard) {
+                        allSectionCards.forEach(card => card.classList.remove('active'));
+                        if (selectedCard) {
+                            selectedCard.classList.add('active');
+                        }
+                    }
+
+                    selectVRCard.addEventListener('click', () => {
+                        displayPracticeSets('Verbal Reasoning');
+                        setActiveSectionCard(selectVRCard);
+                    });
+                    selectDMCard.addEventListener('click', () => {
+                        displayPracticeSets('Decision Making');
+                        setActiveSectionCard(selectDMCard);
+                    });
+                    selectQRCard.addEventListener('click', () => {
+                        displayPracticeSets('Quantitative Reasoning');
+                        setActiveSectionCard(selectQRCard);
+                    });
+                    
+                    console.log("Focus groups page initialized successfully");
+                } catch (error) {
+                    console.error("Error initializing Firebase:", error);
+                    document.getElementById('auth-redirect-message').innerHTML = `
+                        <h2 class="text-xl font-semibold text-red-600 mb-4">Error</h2>
+                        <p class="text-gray-700">There was an error loading the page. Please try again later.</p>
+                        <p class="mt-4"><a href="student_dashboard.html" class="text-blue-600 hover:underline">Return to Dashboard</a></p>
+                    `;
+                    document.getElementById('auth-redirect-message').classList.remove('hidden');
+                }
             }
             
-            practiceSetsContainer.classList.remove('hidden');
-        }
-
-        function setActiveSectionCard(selectedCard) {
-            allSectionCards.forEach(card => card.classList.remove('active'));
-            if (selectedCard) {
-                selectedCard.classList.add('active');
-            }
-        }
-
-        selectVRCard.addEventListener('click', () => {
-            displayPracticeSets('Verbal Reasoning');
-            setActiveSectionCard(selectVRCard);
+            // Start initialization
+            initializeFirebase();
         });
-        selectDMCard.addEventListener('click', () => {
-            displayPracticeSets('Decision Making');
-            setActiveSectionCard(selectDMCard);
-        });
-        selectQRCard.addEventListener('click', () => {
-            displayPracticeSets('Quantitative Reasoning');
-            setActiveSectionCard(selectQRCard);
-        });
-
     </script>
 </body>
 </html>
