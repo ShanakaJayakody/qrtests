@@ -693,6 +693,7 @@
                     <a href="#" id="nav-tests-sjt" class="dropdown-item disabled" role="menuitem" aria-disabled="true">Situational Judgement <span class="coming-soon-inline">Coming Soon</span></a>
                 </div>
             </div>
+            <div id="nav-focus-groups" class="nav-tab" role="button">Focus Groups</div>
             <div id="nav-results" class="nav-tab" role="button">Results</div>
             <div id="nav-skills" class="nav-tab nav-tab-disabled" role="button" aria-disabled="true">
                 <span>Skills</span> <span class="coming-soon-inline">Coming Soon</span>
@@ -1374,6 +1375,12 @@
         navTests.addEventListener('click', () => {
             showContent('results');
             setActiveTab(navTests);
+        });
+        
+        // Focus Groups tab navigation
+        const navFocusGroups = document.getElementById('nav-focus-groups');
+        navFocusGroups.addEventListener('click', () => {
+            window.location.href = 'focus_groups.html';
         });
         
         navResults.addEventListener('click', () => {
