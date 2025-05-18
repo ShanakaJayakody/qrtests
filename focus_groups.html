@@ -151,6 +151,23 @@
             outline: 2px solid #2563eb;
             outline-offset: 2px;
         }
+        .section-card.disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            border-color: #e5e7eb;
+        }
+        .section-card.disabled:hover {
+            transform: none;
+            box-shadow: none;
+            border-color: #e5e7eb;
+        }
+        .section-card.disabled button {
+            background-color: #9ca3af;
+            cursor: not-allowed;
+        }
+        .section-card.disabled button:hover {
+            background-color: #9ca3af;
+        }
     </style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -180,15 +197,15 @@
                     <p>Hone your VR skills with targeted practice sets.</p>
                     <button class="btn-select-section focus-ring-blue">Select VR</button>
                 </div>
-                <div id="select-dm" class="section-card" data-section="DM">
+                <div id="select-dm" class="section-card disabled" data-section="DM">
                     <h3>Decision Making</h3>
                     <p>Sharpen your DM abilities through various scenarios.</p>
-                    <button class="btn-select-section focus-ring-blue">Select DM</button>
+                    <button class="btn-select-section focus-ring-blue" disabled>Coming Soon</button>
                 </div>
-                <div id="select-qr" class="section-card" data-section="QR">
+                <div id="select-qr" class="section-card disabled" data-section="QR">
                     <h3>Quantitative Reasoning</h3>
                     <p>Master QR with numerous focused exercises.</p>
-                    <button class="btn-select-section focus-ring-blue">Select QR</button>
+                    <button class="btn-select-section focus-ring-blue" disabled>Coming Soon</button>
                 </div>
             </div>
 
