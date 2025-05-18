@@ -6,7 +6,93 @@
     <title>Student Dashboard - QR Drills</title>
     <link rel="icon" href="https://ik.imagekit.io/mwp/2.svg?updatedAt=1745982956185" type="image/svg+xml">
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/mwp-styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/mwp-styles.css">
+    
+    <!-- Load our modular JS files -->
+    <script defer src="js/auth.js"></script>
+    <script defer src="js/ui-components.js"></script>
+    <script defer src="js/data-service.js"></script>
+    
+    <script defer src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    
+    <!-- Load our modular JS files -->
+    <script defer src="js/auth.js"></script>
+    <script defer src="js/ui-components.js"></script>
+    <script defer src="js/data-service.js"></script>
+
+    <!-- Dashboard-specific styles -->
     <style>
+        /* Styles specific to dashboard that aren't in the shared CSS */
+        .dashboard-wrapper {
+            background-color: #ffffff;
+            width: 100%;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* Main Navigation */
+        .main-nav {
+            display: flex;
+            justify-content: center;
+            background-color: #ffffff;
+            padding: 0.25rem 0;
+            border-bottom: 1px solid var(--color-border);
+            box-shadow: var(--shadow-sm);
+            position: sticky;
+            top: 61px; /* Height of header */
+            z-index: 30;
+        }
+
+        /* Dropdown for Tests Tab */
+        .tests-dropdown-container {
+            position: relative;
+        }
+
+        .tests-dropdown-content {
+            opacity: 0;
+            visibility: hidden;
+            position: absolute;
+            background-color: #ffffff;
+            min-width: 200px;
+            box-shadow: var(--shadow-md);
+            z-index: 50;
+            border-radius: var(--radius);
+            margin-top: 0.25rem;
+            border: 1px solid var(--color-border);
+            transform: translateY(-10px);
+            transition: all var(--transition);
+            overflow: hidden;
+        }
+
+        .tests-dropdown-container:hover .tests-dropdown-content {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-item {
+            color: var(--color-text-secondary);
+            padding: 0.75rem 1rem;
+            text-decoration: none;
+            display: block;
+            font-size: 0.9rem;
+            border-bottom: 1px solid var(--color-border);
+            transition: all var(--transition);
+        }
+    </style>
+</head>
+<body>
+    <!-- Auth Screen -->
+    <div id="auth-section" class="auth-container">
         :root {
             --color-primary: #3b82f6;
             --color-primary-dark: #2563eb;
